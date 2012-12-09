@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdPaygate" title="[bd] Additional Paygates Support" version_string="0.9-dev" version_id="1" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdPaygate_Listener" callback_method="file_health_check" active="1" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
+    <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdpaygate_paypal_call_to_action" version_id="1" version_string="0.9-dev"><![CDATA[Pay with PayPal]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="bdpaygate_account_upgrades" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase account_upgrades}</xen:title>
+
+<xen:require css="account_upgrades.css" />
+
+<xen:if is="{$available}">
+	<div class="section">
+		<h3 class="subHeading">{xen:phrase available_upgrades}</h3>
+		<ul>
+		<xen:foreach loop="$available" value="$upgrade">
+			<li class="primaryContent">
+				<div class="upgrade">					
+					<div class="upgradeForm">
+						<xen:if hascontent="true">
+							<div class="cost">{$upgrade.costPhrase}</div>
+							<xen:contentcheck>
+								<xen:foreach loop="$upgrade.paymentForms" key="$processorId" value="$form">
+									<div id="{$processorId}">{xen:raw $form}</div>
+								</xen:foreach>
+							</xen:contentcheck>
+						</xen:if>
+					</div>	
+					
+					<div class="upgradeMain">
+						<h4 class="title">{$upgrade.title}</h4>
+						<xen:if is="{$upgrade.description}">
+							<div class="description">{xen:string nl2br, $upgrade.description}</div>
+						</xen:if>
+					</div>
+				</div>
+			</li>
+		</xen:foreach>
+		</ul>
+	</div>
+</xen:if>
+
+<xen:if is="{$purchased}">
+	<div class="section">
+		<h3 class="subHeading">{xen:phrase purchased_upgrades}</h3>
+		<ul>
+		<xen:foreach loop="$purchased" value="$upgrade">
+			<li class="primaryContent">
+				<div class="upgrade">					
+					<div class="upgradeForm">
+						<xen:if is="{$upgrade.record.end_date}">
+							<div>{xen:phrase expires}: <xen:datetime time="$upgrade.record.end_date" /></div>
+						</xen:if>
+						<xen:if is="{$upgrade.length_unit} AND {$upgrade.recurring}">
+							<a href="{$payPalUrl}?cmd=_subscr-find&amp;alias={xen:urlencode $xenOptions.payPalPrimaryAccount}" class="button">{xen:phrase cancel_subscription}</a>
+						</xen:if>
+					</div>
+					
+					<div class="upgradeMain">
+						<h4 class="title">{$upgrade.title}</h4>
+						<xen:if is="{$upgrade.description}">
+							<div class="description">{xen:string nl2br, $upgrade.description}</div>
+						</xen:if>
+					</div>
+				</div>
+			</li>
+		</xen:foreach>
+		</ul>
+	</div>
+</xen:if>]]></template>
+  </templates>
+  <bb_code_media_sites/>
+</addon>
