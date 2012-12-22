@@ -33,7 +33,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			'custom' => XenForo_Input::STRING,
 		));
 		
-		$transactionId = $filtered['txn_id'];
+		$transactionId = (!empty($filtered['txn_id']) ? ('paypal_' . $filtered['txn_id']) : '');
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
 		$transactionDetails = $filtered;
 		$itemId = $filtered['custom'];

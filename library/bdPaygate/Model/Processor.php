@@ -4,7 +4,6 @@ class bdPaygate_Model_Processor extends XenForo_Model
 {
 	public function getProcessorNames()
 	{
-		// this method can be easily extended to support more processors
 		return array(
 			'paypal' => 'bdPaygate_Processor_PayPal',
 		);
@@ -14,7 +13,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 	{
 		return strval($action)
 			. '|' . $visitor['user_id']
-			. '|' . $visitor['csrf_token_page']
+			. '|' . $this->generateHashForItemId($action, $visitor, $data)
 			. (!empty($data) ? ('|' . implode('|', array_map('strval', $data))) : '');
 	}
 	
@@ -27,7 +26,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			// item id should have at least 3 parts
 			$action = array_shift($parts);
 			$userId = array_shift($parts);
-			$csrfToken = array_shift($parts);
+			$hash = array_shift($parts);
 			$data = $parts;
 			
 			$user = $this->getModelFromCache('XenForo_Model_User')->getFullUserById($userId);
@@ -36,8 +35,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				return false;
 			}
 	
-			$tokenParts = explode(',', $csrfToken);
-			if (count($tokenParts) != 3 || sha1($tokenParts[1] . $user['csrf_token']) != $tokenParts[2])
+			if ($this->generateHashForItemId($action, $user, $data) != $hash)
 			{
 				return false;
 			}
@@ -46,6 +44,12 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		}
 		
 		return false;
+	}
+	
+	public function generateHashForItemId($action, $user, $data)
+	{
+		// this one is needed because some processor doesn't support very long item id
+		return substr(md5($action . $user['csrf_token'] . implode(',', $data)), -5);
 	}
 	
 	public function log($processorId, $transactionId, $logType, $logMessage, $logDetails)

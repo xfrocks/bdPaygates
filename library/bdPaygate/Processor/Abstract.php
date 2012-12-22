@@ -7,12 +7,14 @@ abstract class bdPaygate_Processor_Abstract
 	const CURRENCY_AUD = 'aud';
 	const CURRENCY_GBP = 'gbp';
 	const CURRENCY_EUR = 'eur';
+	const CURRENCY_VND = 'vnd';
 	
 	const RECURRING_UNIT_DAY = 'day';
 	const RECURRING_UNIT_MONTH = 'month';
 	const RECURRING_UNIT_YEAR = 'year';
 	
 	const EXTRA_RETURN_URL = 'returnUrl';
+	const EXTRA_DETAIL_URL = 'detailUrl';
 	
 	const PAYMENT_STATUS_ACCEPTED = 'accepted';
 	const PAYMENT_STATUS_REJECTED = 'rejected';
@@ -249,9 +251,19 @@ abstract class bdPaygate_Processor_Abstract
 		return XenForo_Application::getOptions()->get('boardUrl') . '/bdpaygate/callback.php?p=' . $thisProcessorId;
 	}
 	
+	protected function _generateDetailUrl($extraData)
+	{
+		if (!empty($extraData[self::EXTRA_DETAIL_URL]))
+		{
+			return $extraData[self::EXTRA_DETAIL_URL];
+		}
+		
+		return XenForo_Link::buildPublicLink('full:index');
+	}
+	
 	protected function _sandboxMode()
 	{
-		return false;
+		return true;
 	}
 	
 	public static function create($class)

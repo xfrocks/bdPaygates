@@ -35,6 +35,9 @@ XenForo_Autoloader::getInstance()->setupAutoloader($fileDir . '/library');
 XenForo_Application::initialize($fileDir . '/library', $fileDir);
 XenForo_Application::set('page_start_time', $startTime);
 
+$dependencies = new XenForo_Dependencies_Public();
+$dependencies->preLoadData(); // requires to get registered event listeners
+
 if (!isset($_GET['p']))
 {
 	die('Invalid callback request');
@@ -88,4 +91,15 @@ catch (Exception $e)
 $processorModel->log($processorId, $transactionId, $logType, $logMessage, $logDetails);
 
 $response->setBody(htmlspecialchars($logMessage));
-$response->sendResponse();
+
+try
+{
+	if (!headers_sent)
+	{
+		$response->sendResponse();
+	}
+}
+catch (Exception $e)
+{
+	// ignore
+}

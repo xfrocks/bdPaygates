@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPaygate" title="[bd] Additional Paygates Support" version_string="0.9-dev" version_id="1" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdPaygate" title="[bd] Additional Paygates Support" version_string="0.9-dev" version_id="2" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -69,9 +69,6 @@
 					<div class="upgradeForm">
 						<xen:if is="{$upgrade.record.end_date}">
 							<div>{xen:phrase expires}: <xen:datetime time="$upgrade.record.end_date" /></div>
-						</xen:if>
-						<xen:if is="{$upgrade.length_unit} AND {$upgrade.recurring}">
-							<a href="{$payPalUrl}?cmd=_subscr-find&amp;alias={xen:urlencode $xenOptions.payPalPrimaryAccount}" class="button">{xen:phrase cancel_subscription}</a>
 						</xen:if>
 					</div>
 					
