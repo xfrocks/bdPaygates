@@ -7,40 +7,22 @@ class bdPaygate_XenForo_ViewPublic_Account_Upgrades extends XFCP_bdPaygate_XenFo
 		// TODO: find way to safely trigger parent's
 		// parent::renderHtml();
 		
-		$available =& $this->_params['available'];
 		$processors =& $this->_params['processors'];
-		$visitor = XenForo_Visitor::getInstance();
-		$itemId = false;
-		$itemName = false;
-		
-		foreach ($available as &$upgrade)
+		if (!empty($processors))
 		{
-			$upgrade['paymentForms'] = array();
+			$available =& $this->_params['available'];
+			$visitor = XenForo_Visitor::getInstance();
+			$itemId = false;
+			$itemName = false;
 			
-			foreach ($processors as $processorId => $processor)
+			foreach ($available as &$upgrade)
 			{
-				if ($upgrade['recurring'] AND !$processor->isRecurringSupported())
-				{
-					// this upgrade require recurring payments
-					// but this processor doesn't support it, next
-					continue;
-				}
-				
-				if (!$processor->isCurrencySupported($upgrade['currency']))
-				{
-					// this processor doesn't support specified currency for
-					// this upgrade, next
-					continue;
-				}
-				
-				if ($itemId === false)
-				{
-					// the item id hasn't been calculated yet, let's do it now
-					$itemId = $processor->getModelFromCache('bdPaygate_Model_Processor')->generateItemId('user_upgrade', $visitor, array($upgrade['user_upgrade_id']));
-					$itemName = strval(new XenForo_Phrase('account_upgrade') . ': ' . $upgrade['title'] . ' (' . $visitor['username'] . ')');
-				}
-				
-				$upgrade['paymentForms'][$processorId] = $processor->generateFormData(
+				$processor = reset($processors);
+				$itemId = $processor->getModelFromCache('bdPaygate_Model_Processor')->generateItemId('user_upgrade', $visitor, array($upgrade['user_upgrade_id']));
+				$itemName = strval(new XenForo_Phrase('account_upgrade') . ': ' . $upgrade['title'] . ' (' . $visitor['username'] . ')');
+						
+				$upgrade['paymentForms'] = bdPaygate_Processor_Abstract::prepareForms(
+					$processors,
 					$upgrade['cost_amount'],
 					$upgrade['cost_currency'],
 					$itemName,

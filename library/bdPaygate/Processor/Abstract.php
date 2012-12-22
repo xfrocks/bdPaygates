@@ -23,6 +23,17 @@ abstract class bdPaygate_Processor_Abstract
 	protected $_lastError = false;
 	
 	/**
+	 * Checks whether the processor is available and ready
+	 * to accept payments
+	 * 
+	 * @return bool
+	 */
+	public function isAvailable()
+	{
+		return true;
+	}
+	
+	/**
 	 * Returns list of supported currencies.
 	 * 
 	 * @return array
@@ -263,7 +274,7 @@ abstract class bdPaygate_Processor_Abstract
 	
 	protected function _sandboxMode()
 	{
-		return true;
+		return false;
 	}
 	
 	public static function create($class)
@@ -284,5 +295,46 @@ abstract class bdPaygate_Processor_Abstract
 		}
 		
 		return $obj;
+	}
+	
+	public static function prepareForms(array $processors, $amount, $currency, $itemName, $itemId, $recurringInterval = false, $recurringUnit = false, array $extraData = array())
+	{
+		$forms = array();
+			
+		foreach ($processors as $processorId => $processor)
+		{
+			if (!$processor->isAvailable())
+			{
+				// some processor may be not available at some specific time
+				// since v0.9-dev3
+				continue;
+			}
+			
+			if ((!empty($recurringInterval) OR !empty($recurringUnit)) AND !$processor->isRecurringSupported())
+			{
+				// this upgrade require recurring payments
+				// but this processor doesn't support it, next
+				continue;
+			}
+			
+			if (!$processor->isCurrencySupported($currency))
+			{
+				// this processor doesn't support specified currency for
+				// this upgrade, next
+				continue;
+			}
+
+			$forms[$processorId] = $processor->generateFormData(
+				$amount,
+				$currency,
+				$itemName,
+				$itemId,
+				$recurringInterval,
+				$recurringUnit,
+				$extraData
+			);
+		}
+		
+		return $forms;
 	}
 }
