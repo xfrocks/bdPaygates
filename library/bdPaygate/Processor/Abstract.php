@@ -279,9 +279,7 @@ abstract class bdPaygate_Processor_Abstract
 	
 	public static function create($class)
 	{
-		// no dynamic loading, yet
-		// $createClass = XenForo_Application::resolveDynamicClass($class, 'bdpaygate_processor');
-		$createClass = $class;
+		$createClass = XenForo_Application::resolveDynamicClass($class, 'bdpaygate_processor');
 		
 		if (!$createClass)
 		{
@@ -324,7 +322,7 @@ abstract class bdPaygate_Processor_Abstract
 				continue;
 			}
 
-			$forms[$processorId] = $processor->generateFormData(
+			$form = $processor->generateFormData(
 				$amount,
 				$currency,
 				$itemName,
@@ -333,6 +331,12 @@ abstract class bdPaygate_Processor_Abstract
 				$recurringUnit,
 				$extraData
 			);
+			$form = utf8_trim($form);
+			
+			if (!empty($form))
+			{
+				$forms[$processorId] = $form;
+			}
 		}
 		
 		return $forms;

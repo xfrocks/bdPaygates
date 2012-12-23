@@ -5,6 +5,7 @@ class bdPaygate_Listener
 	public static function load_class($class, array &$extend)
 	{
 		static $classes = array(
+			'XenForo_ControllerAdmin_Log',
 			'XenForo_ControllerPublic_Account',
 			'XenForo_ViewPublic_Account_Upgrades',
 		);

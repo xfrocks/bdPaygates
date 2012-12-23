@@ -4,7 +4,7 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base {
 		'log' => array(
 			'name' => 'log',
 			'camelCase' => 'Log',
-			'camelCasePlural' => false,
+			'camelCasePlural' => 'Logs',
 			'camelCaseWSpace' => 'Log',
 			'fields' => array(
 				'log_id' => array('name' => 'log_id', 'type' => 'uint', 'autoIncrement' => true),
@@ -22,7 +22,12 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base {
 			'indeces' => array(
 				'transaction_id' => array('name' => 'transaction_id', 'fields' => array('transaction_id'), 'type' => 'NORMAL')
 			),
-			'files' => array('data_writer' => false, 'model' => false, 'route_prefix_admin' => false, 'controller_admin' => false)
+			'files' => array(
+				'data_writer' => false,
+				'model' => array('className' => 'bdPaygate_Model_Log', 'hash' => '5c6481c3da2edd72f397c6cb027c2fb4'),
+				'route_prefix_admin' => false,
+				'controller_admin' => false
+			)
 		)
 	);
 	protected $_dataPatches = array();

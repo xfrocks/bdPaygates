@@ -75,12 +75,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			return array();
 		}
 
-		return $this->fetchAllKeyed('
-			SELECT *
-			FROM xf_bdpaygate_log
-			WHERE transaction_id = ?
-			ORDER BY log_date
-		', 'log_id', $transactionId);
+		$logs = $this->getModelFromCache('bdPaygate_Model_Log')->getLogs(array('transaction_id' => $transactionId));
+		
+		return reset($logs);
 	}
 	
 	public function processItem($itemId)

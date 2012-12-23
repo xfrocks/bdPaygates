@@ -1,10 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPaygate" title="[bd] Additional Paygates Support" version_string="0.9-dev" version_id="2" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
-  <admin_navigation/>
+<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.0-dev" version_id="3" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="bdPaygate_logs" parent_navigation_id="logs" display_order="9999" link="logs/bdpaygate" admin_permission_id="viewLogs" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
   <admin_permissions/>
   <admin_style_properties/>
-  <admin_templates/>
-  <code_events/>
+  <admin_templates>
+    <template title="bdpaygate.css"><![CDATA[.FilterList .listItem.bdPaygate_LogEntry_Error h4 {
+	background: red;
+}
+
+.FilterList .listItem.bdPaygate_LogEntry_Error:hover h4 {
+	background: red;
+}
+
+	.FilterList .listItem.bdPaygate_LogEntry_Error a,
+	.FilterList .listItem.bdPaygate_LogEntry_Error .secondRow,
+	.FilterList .listItem.bdPaygate_LogEntry_Error .faint {
+		color: white;
+	}
+
+]]></template>
+    <template title="bdpaygate_log_clear"><![CDATA[<xen:title>{xen:phrase bdpaygate_log_clear}</xen:title>
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'logs/bdpaygate/clear'}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase bdpaytate_sure_you_want_to_clear_log}</p>
+	
+	<xen:submitunit save="{xen:phrase bdpaygate_log_clear}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="bdpaygate_log_list"><![CDATA[<xen:title>{xen:phrase bdpaygate_logs}</xen:title>
+
+<xen:if is="{$entries}"><xen:topctrl><a href="{xen:adminlink logs/bdpaygate/clear}" class="button OverlayTrigger">{xen:phrase bdpaygate_log_clear}</a></xen:topctrl></xen:if>
+
+<xen:require css="filter_list.css" />
+<xen:require css="bdpaygate.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:if is="{$entries}">
+
+	<div class="section">
+	
+		<h2 class="subHeading">
+			{xen:phrase bdpaygate_logs}
+		</h2>
+	
+		<ol class="FilterList secondRow">
+			<xen:foreach loop="$entries" value="$entry">
+				<xen:listitem id="{$entry.error_id}"
+					href="{xen:adminlink logs/bdpaygate, '', 'id={$entry.log_id}'}"
+					linkclass="OverlayTrigger"
+					class="{xen:if '{$entry.log_type} == "error"', 'bdPaygate_LogEntry_Error'}">
+					<xen:label>{$entry.log_message}
+						<span class="secondRow">
+							<xen:datetime time="{$entry.log_date}" class="faint" />
+							-
+							{$entry.processor}
+							({$entry.log_type})
+						</span>
+					</xen:label>
+				</xen:listitem>
+			</xen:foreach>
+		</ol>
+	
+		<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $entries}</span>', 'total={xen:number $total}'}</p>
+	
+	</div>
+		
+	<xen:adminpagenav page="{$page}" perpage="{$perPage}" total="{$total}" link="logs/bdpaygate" />
+
+<xen:else />
+	<div class="noResults">{xen:phrase bdpaygate_no_transaction_have_been_logged}</div>
+</xen:if>]]></template>
+    <template title="bdpaygate_log_view"><![CDATA[<xen:title>{xen:phrase bdpaygate_log}</xen:title>
+
+<div class="section">
+	<div class="overlayScroll">
+		<table width="100%">
+		<tr>
+			<th class="subHeading">{xen:phrase bdpaygate_log_processor_info}</th>
+		</tr>
+		<tr>
+			<td class="primaryContent">
+				<span class="dimmed">{$entry.processor}:</span> {$entry.transaction_id}
+				<div class="muted"><xen:datetime time="{$entry.log_date}" /></div>
+			</td>
+		</tr>
+		<tr>
+			<th class="subHeading">{xen:phrase bdpaygate_log_result}</th>
+		</tr>
+		<tr>
+			<td class="primaryContent">{$entry.log_message} ({$entry.log_type})</td>
+		</tr>
+		<tr>
+			<th class="subHeading">{xen:phrase bdpaygate_log_details}</th>
+		</tr>
+		<tr>
+			<td class="primaryContent">{xen:helper dump, $entry.logDetails}</td>
+		</tr>
+		</table>
+	</div>
+</div>]]></template>
+  </admin_templates>
+  <code_events>
+    <event event_id="load_class_bdpaygate_processor"><![CDATA[<p>Called when instantiating a processor. This event can be used to extend the class that will be instantiated dynamically.</p>
+
+<p>Callback signature:</p>
+<blockquote><code>$class, <em>array</em> &$extend</code></blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>string</em> $class</code> - the name of the class to be created</li>
+	<li><code><em>array</em> &$extend</code> - a modifiable list of classes that wish to extend the class. See below.</li>
+</ol>
+
+<p>To use this event properly, determine if the class is one you want to extend. If so, add a new entry to $extend with the name of the class that should extend it. This class MUST be defined as follows:</p>
+
+<pre>class My_Class_Name extends XFCP_My_Class_Name
+{
+	// functionality to extend/override
+}</pre>
+
+<p>This class must extend the non-existent XFCP_x class. This will be resolved at run time.</p>]]></event>
+  </code_events>
   <code_event_listeners>
     <listener event_id="file_health_check" execute_order="10" callback_class="bdPaygate_Listener" callback_method="file_health_check" active="1" description=""/>
     <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
@@ -19,7 +140,17 @@
     <interface_groups/>
   </permissions>
   <phrases>
+    <phrase title="admin_navigation_bdPaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Log]]></phrase>
+    <phrase title="bdpaygate_log" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygate Log]]></phrase>
+    <phrase title="bdpaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Logs]]></phrase>
+    <phrase title="bdpaygate_log_clear" version_id="2" version_string="0.9-dev"><![CDATA[Clear Log]]></phrase>
+    <phrase title="bdpaygate_log_details" version_id="2" version_string="0.9-dev"><![CDATA[Details]]></phrase>
+    <phrase title="bdpaygate_log_processor_info" version_id="2" version_string="0.9-dev"><![CDATA[Processor Info]]></phrase>
+    <phrase title="bdpaygate_log_result" version_id="2" version_string="0.9-dev"><![CDATA[Result]]></phrase>
+    <phrase title="bdpaygate_no_transaction_have_been_logged" version_id="2" version_string="0.9-dev"><![CDATA[No transaction have been logged.]]></phrase>
     <phrase title="bdpaygate_paypal_call_to_action" version_id="1" version_string="0.9-dev"><![CDATA[Pay with PayPal]]></phrase>
+    <phrase title="bdpaygate_requested_log_entry_not_found" version_id="2" version_string="0.9-dev"><![CDATA[The requested log entry could not be found.]]></phrase>
+    <phrase title="bdpaytate_sure_you_want_to_clear_log" version_id="2" version_string="0.9-dev"><![CDATA[Are you sure you want to clear the [bd] Paygate log?]]></phrase>
   </phrases>
   <route_prefixes/>
   <style_properties/>
