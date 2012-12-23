@@ -2,6 +2,13 @@
 
 class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 {
+	public function isAvailable()
+	{
+		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
+		
+		return !empty($paypalAccount);
+	}
+	
 	public function getSupportedCurrencies()
 	{
 		return array(
