@@ -9,7 +9,7 @@ class bdPaygate_FileSums
   'library/bdPaygate/Listener.php' => 'e3e5a96ed7f091dbd851baf97bde734e',
   'library/bdPaygate/Model/Log.php' => 'b0064ad837b22468b77906f78372b073',
   'library/bdPaygate/Model/Processor.php' => '83a7576fb686f7cae19abfe1b90b9d45',
-  'library/bdPaygate/Processor/Abstract.php' => '2d9f280516129fe18c13fe07517f4b08',
+  'library/bdPaygate/Processor/Abstract.php' => '4b19f4f9df45e1285c03896bde7d2fff',
   'library/bdPaygate/Processor/PayPal.php' => 'd4623810316f094b1a9e982976b2f0e3',
   'library/bdPaygate/XenForo/ControllerAdmin/Log.php' => 'c7dcd2f2369d329676c9c35cccf56e17',
   'library/bdPaygate/XenForo/ControllerPublic/Account.php' => '7846258590fa6fa6444ab017c856127a',

@@ -94,7 +94,7 @@ $response->setBody(htmlspecialchars($logMessage));
 
 try
 {
-	if (!headers_sent)
+	if (!headers_sent())
 	{
 		$response->sendResponse();
 	}

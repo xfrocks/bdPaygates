@@ -274,7 +274,8 @@ abstract class bdPaygate_Processor_Abstract
 	
 	protected function _sandboxMode()
 	{
-		return false;
+		$sandboxMode = intval(XenForo_Application::getOptions()->get('bdPaygate0_sandboxMode'));
+		return $sandboxMode > 0;
 	}
 	
 	public static function create($class)
