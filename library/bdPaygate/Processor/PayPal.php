@@ -42,7 +42,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		
 		$transactionId = (!empty($filtered['txn_id']) ? ('paypal_' . $filtered['txn_id']) : '');
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
-		$transactionDetails = $filtered;
+		$transactionDetails = array_merge($_POST, $filtered);
 		$itemId = $filtered['custom'];
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
 		
