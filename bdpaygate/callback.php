@@ -29,6 +29,9 @@ if ($fileDir === false)
 }
 // finished figuring out $fileDir
 
+// change directory to mimics the XenForo environment as much as possible
+chdir($fileDir);
+
 require($fileDir . '/library/XenForo/Autoloader.php');
 XenForo_Autoloader::getInstance()->setupAutoloader($fileDir . '/library');
 
