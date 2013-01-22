@@ -62,8 +62,30 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			'log_details' => serialize($logDetails),
 			'log_date' => XenForo_Application::$time
 		));
+		
+		$logId = $this->_getDb()->lastInsertId();
+		
+		if ($logType !== bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED)
+		{
+			$emailOnFailure = XenForo_Application::getOptions()->get('bdPaygate0_emailOnFailure');
+			file_put_contents('internal_data/bdpaygate.txt', $emailOnFailure);
+			if (!empty($emailOnFailure))
+			{
+				// send email notification to administrator for failed transaction
+				$mail = XenForo_Mail::create('bdpaygate_failure', array(
+					'processorId' => $processorId,
+					'transactionId' => $transactionId,
+					'logType' => $logType,
+					'logMessage' => $logMessage,
+					'logDetails' => $logDetails,
+					'logId' => $logId,
+				));
+				
+				$mail->queue($emailOnFailure);
+			}
+		}
 
-		return $this->_getDb()->lastInsertId();
+		return $logId;
 	}
 	
 	public function getLogByTransactionId($transactionId)

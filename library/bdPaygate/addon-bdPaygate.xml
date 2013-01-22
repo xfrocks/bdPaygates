@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.0-dev" version_id="5" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.0" version_id="6" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bdPaygate_logs" parent_navigation_id="logs" display_order="9999" link="logs/bdpaygate" admin_permission_id="viewLogs" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
@@ -53,7 +53,7 @@
 				<xen:listitem id="{$entry.error_id}"
 					href="{xen:adminlink logs/bdpaygate, '', 'id={$entry.log_id}'}"
 					linkclass="OverlayTrigger"
-					class="{xen:if '{$entry.log_type} == "error"', 'bdPaygate_LogEntry_Error'}">
+					class="{xen:if '{$entry.log_type} != "accepted"', 'bdPaygate_LogEntry_Error'}">
 					<xen:label>{$entry.log_message}
 						<span class="secondRow">
 							<xen:datetime time="{$entry.log_date}" class="faint" />
@@ -99,7 +99,16 @@
 			<th class="subHeading">{xen:phrase bdpaygate_log_details}</th>
 		</tr>
 		<tr>
-			<td class="primaryContent">{xen:helper dump, $entry.logDetails}</td>
+			<td>
+				<table width="100%">
+					<xen:foreach loop="$entry.logDetails" key="$key" value="$value">
+						<tr>
+							<td class="primaryContent">{$key}</td>
+							<td class="primaryContent">{$value}</td>
+						</tr>
+					</xen:foreach>
+				</table>
+			</td>
 		</tr>
 		</table>
 	</div>
@@ -132,8 +141,28 @@
     <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
   </code_event_listeners>
   <cron/>
-  <email_templates/>
+  <email_templates>
+    <template title="bdpaygate_failure">
+      <subject><![CDATA[{xen:phrase bdpaygate_failed_transaction_x, 'transactionId={$transactionId}'}]]></subject>
+      <body_text><![CDATA[{xen:phrase bdpaygate_failed_transaction_text,
+	'processorId={$processorId}',
+	'transactionId={$transactionId}',
+	'logType={$logType}',
+	'logMessage={$logMessage}',
+	'logDetails={$logDetails}',
+	'boardTitle={$xenOptions.boardTitle}',
+	'link={xen:adminlink canonical:logs/bdpaygate, '', 'id={$logId}'}'
+}]]></body_text>
+      <body_html><![CDATA[]]></body_html>
+    </template>
+  </email_templates>
   <optiongroups>
+    <option option_id="bdPaygate0_emailOnFailure" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="debug" display_order="210"/>
+    </option>
     <option option_id="bdPaygate0_sandboxMode" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
       <default_value></default_value>
       <edit_format_params></edit_format_params>
@@ -148,6 +177,15 @@
   </permissions>
   <phrases>
     <phrase title="admin_navigation_bdPaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Log]]></phrase>
+    <phrase title="bdpaygate_failed_transaction_text" version_id="5" version_string="1.0-dev"><![CDATA[The following transaction has encountered problem at {boardTitle}:
+
+Processor: {processorId}
+Transaction: {transactionId}
+Type: {logType}
+Message: {logMessage}
+
+The detail log is available here: {link}]]></phrase>
+    <phrase title="bdpaygate_failed_transaction_x" version_id="5" version_string="1.0-dev"><![CDATA[Failed Transaction Notification: {transactionId}]]></phrase>
     <phrase title="bdpaygate_log" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygate Log]]></phrase>
     <phrase title="bdpaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Logs]]></phrase>
     <phrase title="bdpaygate_log_clear" version_id="2" version_string="0.9-dev"><![CDATA[Clear Log]]></phrase>
@@ -158,7 +196,9 @@
     <phrase title="bdpaygate_paypal_call_to_action" version_id="1" version_string="0.9-dev"><![CDATA[Pay with PayPal]]></phrase>
     <phrase title="bdpaygate_requested_log_entry_not_found" version_id="2" version_string="0.9-dev"><![CDATA[The requested log entry could not be found.]]></phrase>
     <phrase title="bdpaytate_sure_you_want_to_clear_log" version_id="2" version_string="0.9-dev"><![CDATA[Are you sure you want to clear the [bd] Paygate log?]]></phrase>
-    <phrase title="option_bdPaygate0_sandboxMode" version_id="3" version_string="1.0-dev"><![CDATA[Use Sandbox Mode for paygates]]></phrase>
+    <phrase title="option_bdPaygate0_emailOnFailure" version_id="5" version_string="1.0-dev"><![CDATA[Send Email on Failure]]></phrase>
+    <phrase title="option_bdPaygate0_emailOnFailure_explain" version_id="5" version_string="1.0-dev"><![CDATA[Enter the email address that will receive a notification email if a paygate reports a failed transaction. Leave blank to disable this feature.]]></phrase>
+    <phrase title="option_bdPaygate0_sandboxMode" version_id="5" version_string="1.0-dev"><![CDATA[Use Sandbox Mode for Paygates]]></phrase>
     <phrase title="option_bdPaygate0_sandboxMode_explain" version_id="3" version_string="1.0-dev"><![CDATA[Turn on this option to test installed paygates. Most system support sandboxing (test transactions without actually transferring money) but you should always check the document before making a payment to prevent financial loss.]]></phrase>
   </phrases>
   <route_prefixes/>
