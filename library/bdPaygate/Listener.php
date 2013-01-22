@@ -6,7 +6,9 @@ class bdPaygate_Listener
 	{
 		static $classes = array(
 			'XenForo_ControllerAdmin_Log',
+			'XenForo_ControllerAdmin_UserUpgrade',
 			'XenForo_ControllerPublic_Account',
+			'XenForo_Model_Option',
 			'XenForo_ViewPublic_Account_Upgrades',
 		);
 		
