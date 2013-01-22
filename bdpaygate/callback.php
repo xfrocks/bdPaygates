@@ -56,7 +56,6 @@ $processor = bdPaygate_Processor_Abstract::create($names[$processorId]);
 $request = new Zend_Controller_Request_Http();
 $response = new Zend_Controller_Response_Http();
 
-$logType = '';
 $logMessage = '';
 $logDetails = array();
 $transactionId = false;
@@ -67,14 +66,13 @@ try
 {
 	if (!$processor->validateCallback($request, $transactionId, $paymentStatus, $logDetails, $itemId))
 	{
-		$logType = 'error';
+		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
 		$logMessage = $processor->getLastError();
 
 		$response->setHttpResponseCode(500);
 	}
 	else
 	{
-		$logType = $paymentStatus;
 		$logMessage = $processor->processTransaction($paymentStatus, $itemId);
 	}
 }
@@ -83,23 +81,26 @@ catch (Exception $e)
 	$response->setHttpResponseCode(500);
 	XenForo_Error::logException($e);
 
-	$logType = 'error';
+	$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
 	$logMessage = 'Exception: ' . $e->getMessage();
 	$logDetails['_e'] = $e;
 }
 
-$processorModel->log($processorId, $transactionId, $logType, $logMessage, $logDetails);
+$processorModel->log($processorId, $transactionId, $paymentStatus, $logMessage, $logDetails);
 
-$response->setBody(htmlspecialchars($logMessage));
-
-try
+if (!$processor->redirectOnCallback($request, $paymentStatus, $logMessage))
 {
-	if (!headers_sent())
+	$response->setBody(htmlspecialchars($logMessage));
+	
+	try
 	{
-		$response->sendResponse();
+		if (!headers_sent())
+		{
+			$response->sendResponse();
+		}
 	}
-}
-catch (Exception $e)
-{
-	// ignore
+	catch (Exception $e)
+	{
+		// ignore
+	}
 }

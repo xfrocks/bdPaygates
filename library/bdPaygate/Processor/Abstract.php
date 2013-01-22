@@ -18,6 +18,7 @@ abstract class bdPaygate_Processor_Abstract
 	
 	const PAYMENT_STATUS_ACCEPTED = 'accepted';
 	const PAYMENT_STATUS_REJECTED = 'rejected';
+	const PAYMENT_STATUS_ERROR = 'error';
 	const PAYMENT_STATUS_OTHER = 'other';
 	
 	protected $_lastError = false;
@@ -63,14 +64,28 @@ abstract class bdPaygate_Processor_Abstract
 	 * Validates callback from payment gateway.
 	 * 
 	 * @param Zend_Controller_Request_Http $request
-	 * @param $transactionId
-	 * @param $paymentStatus
-	 * @param $transactionDetails
-	 * @param $itemId
+	 * @param out $transactionId
+	 * @param out $paymentStatus
+	 * @param out $transactionDetails
+	 * @param out $itemId
 	 * 
 	 * @return bool
 	 */
 	public abstract function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId);
+	
+	/**
+	 * Redirects the request if needed.
+	 * 
+	 * @param Zend_Controller_Request_Http $request
+	 * @param string $paymentStatus
+	 * @param string $processMessage
+	 * 
+	 * @return bool true if redirected, false otherwise.
+	 */
+	public function redirectOnCallback(Zend_Controller_Request_Http $request, $paymentStatus, $processMessage)
+	{
+		return false;
+	}
 	
 	/**
 	 * Generates form data ready to be submitted.
