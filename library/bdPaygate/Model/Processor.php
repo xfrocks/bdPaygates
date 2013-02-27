@@ -25,14 +25,23 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		{
 			// item id should have at least 3 parts
 			$action = array_shift($parts);
-			$userId = array_shift($parts);
+			$userId = intval(array_shift($parts));
 			$hash = array_shift($parts);
 			$data = $parts;
 			
-			$user = $this->getModelFromCache('XenForo_Model_User')->getFullUserById($userId);
-			if (!$user)
+			if ($userId > 0)
 			{
-				return false;
+				$user = $this->getModelFromCache('XenForo_Model_User')->getFullUserById($userId);
+				if (!$user)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				// sondh@2013-02-27
+				// support proper guest user info
+				$user = $this->getModelFromCache('XenForo_Model_User')->getVisitingGuestUser();
 			}
 	
 			if ($this->generateHashForItemId($action, $user, $data) != $hash)
