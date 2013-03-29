@@ -62,6 +62,7 @@ abstract class bdPaygate_Processor_Abstract
 	
 	/**
 	 * Validates callback from payment gateway.
+	 * THIS METHOD HAS BEEN DEPRECATED, please implement validateCallback2
 	 * 
 	 * @param Zend_Controller_Request_Http $request
 	 * @param out $transactionId
@@ -73,6 +74,27 @@ abstract class bdPaygate_Processor_Abstract
 	 */
 	public abstract function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId);
 	
+	/**
+	 * Validates callback from payment gateway.
+	 * This is version 2 of the method validateCallback which supports
+	 * amount and currency extraction, allow the system to detect a few
+	 * type of malicious activities.
+	 *
+	 * @param Zend_Controller_Request_Http $request
+	 * @param out $transactionId
+	 * @param out $paymentStatus
+	 * @param out $transactionDetails
+	 * @param out $itemId
+	 * @param out $amount
+	 * @param out $currency
+	 *
+	 * @return bool
+	 */
+	public function validateCallback2(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId, &$amount, &$currency)
+	{
+		throw new bdPaygate_Exception_NotImplemented();
+	}
+
 	/**
 	 * Redirects the request if needed.
 	 * 
@@ -114,10 +136,12 @@ abstract class bdPaygate_Processor_Abstract
 	 * 
 	 * @param string $paymentStatus
 	 * @param string $itemId
+	 * @param float $amount
+	 * $param string $currency
 	 * 
 	 * @return string meaningful message for logging
 	 */
-	public function processTransaction($paymentStatus, $itemId)
+	public function processTransaction($paymentStatus, $itemId, $amount, $currency)
 	{
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
 		$message = false;
@@ -125,10 +149,10 @@ abstract class bdPaygate_Processor_Abstract
 		switch ($paymentStatus)
 		{
 			case bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED:
-				$message = $processorModel->processItem($itemId);
+				$message = $processorModel->processItem($itemId, $this, $amount, $currency);
 				break;
 			case bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED:
-				$message = $processorModel->revertItem($itemId);
+				$message = $processorModel->revertItem($itemId, $this, $amount, $currency);
 				break;
 		}
 

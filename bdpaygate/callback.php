@@ -64,10 +64,24 @@ $logDetails = array();
 $transactionId = false;
 $paymentStatus = false;
 $itemId = false;
+$amount = false;
+$currency = false;
 
 try
 {
-	if (!$processor->validateCallback($request, $transactionId, $paymentStatus, $logDetails, $itemId))
+	$validateResult = false;
+
+	try
+	{
+		// try to use the validateCallback method version 2 with support for amount and currency extraction
+		$validateResult = $processor->validateCallback2($request, $transactionId, $paymentStatus, $logDetails, $itemId, $amount, $currency);
+	}
+	catch (bdPaygate_Exception_NotImplemented $nie)
+	{
+		$validateResult = $processor->validateCallback($request, $transactionId, $paymentStatus, $logDetails, $itemId);
+	}
+
+	if (!$validateResult)
 	{
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
 		$logMessage = $processor->getLastError();
@@ -76,7 +90,7 @@ try
 	}
 	else
 	{
-		$logMessage = $processor->processTransaction($paymentStatus, $itemId);
+		$logMessage = $processor->processTransaction($paymentStatus, $itemId, $amount, $currency);
 	}
 }
 catch (Exception $e)

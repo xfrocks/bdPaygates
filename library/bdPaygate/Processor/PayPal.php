@@ -27,6 +27,14 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	
 	public function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId)
 	{
+		$amount = false;
+		$currency = false;
+
+		return $this->validateCallback2($request, $transactionId, $paymentStatus, $transactionDetails, $itemId, $amount, $currency);
+	}
+
+	public function validateCallback2(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId, &$amount, &$currency)
+	{
 		$input = new XenForo_Input($request);
 		$filtered = $input->filter(array(
 			'test_ipn' => XenForo_Input::UINT,
@@ -44,6 +52,8 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
 		$transactionDetails = array_merge($_POST, $filtered);
 		$itemId = $filtered['custom'];
+		$amount = $filtered['mc_gross'];
+		$currency = $filtered['mc_currency'];
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
 		
 		$log = $processorModel->getLogByTransactionId($transactionId);

@@ -111,7 +111,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		return reset($logs);
 	}
 	
-	public function processItem($itemId)
+	public function processItem($itemId, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		$message = false;
 		
@@ -120,10 +120,10 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			switch ($action)
 			{
 				case 'user_upgrade':
-					$message = $this->_processUserUpgrade(true, $user, $data);
+					$message = $this->_processUserUpgrade(true, $user, $data, $processor, $amount, $currency);
 					break;
 				default:
-					$message = $this->_processIntegratedAction($action, $user, $data);
+					$message = $this->_processIntegratedAction($action, $user, $data, $processor, $amount, $currency);
 					break;
 			}
 		}
@@ -135,7 +135,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		return $message;
 	}
 	
-	public function revertItem($itemId)
+	public function revertItem($itemId, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		$message = false;
 		
@@ -144,10 +144,10 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		switch ($action)
 			{
 				case 'user_upgrade':
-					$message = $this->_processUserUpgrade(false, $user, $data);
+					$message = $this->_processUserUpgrade(false, $user, $data, $processor, $amount, $currency);
 					break;
 				default:
-					$message = $this->_revertIntegratedAction($action, $user, $data);
+					$message = $this->_revertIntegratedAction($action, $user, $data, $processor, $amount, $currency);
 					break;
 			}
 		}
@@ -159,7 +159,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		return $message;
 	}
 	
-	protected function _processUserUpgrade($isAccepted, $user, $data)
+	protected function _processUserUpgrade($isAccepted, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		$upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
 		
@@ -171,11 +171,34 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		
 		if ($isAccepted)
 		{
+			if ($amount !== false AND $currency !== false)
+			{
+				$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
+				if ($upgradeRecord)
+				{
+					$extra = unserialize($upgradeRecord['extra']);
+					$upgradeCost = $extra['cost_amount'];
+					$upgradeCurrency = $extra['cost_currency'];
+				}
+				else
+				{
+					$upgradeCost = $upgrade['cost_amount'];
+					$upgradeCurrency = $upgrade['cost_currency'];
+				}
+
+				if (!$this->_verifyPaymentAmount($processor, $amount, $currency, $upgradeCost, $upgradeCurrency))
+				{
+					return '[ERROR] Invalid payment amount';
+				}
+			}
+
 			$upgradeRecordId = $upgradeModel->upgradeUser($user['user_id'], $upgrade);
 			return 'Upgraded user ' . $user['username'] . ' (upgrade record #' . $upgradeRecordId . ')';
 		}
 		else 
 		{
+			// TODO: verify payment amount?
+
 			$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
 			if (!empty($upgradeRecord))
 			{
@@ -190,17 +213,34 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		}
 	}
 	
-	protected function _processIntegratedAction($action, $user, $data)
+	protected function _processIntegratedAction($action, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		XenForo_Error::logException(new XenForo_Exception('Unhandled payment action (process): ' . $action));
 		
 		return false;
 	}
 	
-	protected function _revertIntegratedAction($action, $user, $data)
+	protected function _revertIntegratedAction($action, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		XenForo_Error::logException(new XenForo_Exception('Unhandled payment action (revert): ' . $action));
 		
 		return false;
+	}
+
+	protected function _verifyPaymentAmount(bdPaygate_Processor_Abstract $processor, $actualAmount, $actualCurrency, $expectAmount, $expectCurrency)
+	{
+		if (utf8_strtolower($actualCurrency) !== utf8_strtolower($expectCurrency))
+		{
+			return false;
+		}
+
+		$valueActual = sprintf('%0.10f', floatval($actualAmount));
+		$valueExpect = sprintf('%0.10f', floatval($expectAmount));
+		if ($valueActual !== $valueExpect)
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
