@@ -104,7 +104,13 @@
 					<xen:foreach loop="$entry.logDetails" key="$key" value="$value">
 						<tr>
 							<td class="primaryContent">{$key}</td>
-							<td class="primaryContent">{$value}</td>
+							<td class="primaryContent">
+								<xen:if is="is_array({$value})">
+									{xen:helper dump, $value}
+								<xen:else />
+									{$value}
+								</xen:if>
+							</td>
 						</tr>
 					</xen:foreach>
 				</table>
