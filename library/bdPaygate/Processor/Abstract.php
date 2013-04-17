@@ -7,7 +7,6 @@ abstract class bdPaygate_Processor_Abstract
 	const CURRENCY_AUD = 'aud';
 	const CURRENCY_GBP = 'gbp';
 	const CURRENCY_EUR = 'eur';
-	const CURRENCY_VND = 'vnd';
 	
 	const RECURRING_UNIT_DAY = 'day';
 	const RECURRING_UNIT_MONTH = 'month';
