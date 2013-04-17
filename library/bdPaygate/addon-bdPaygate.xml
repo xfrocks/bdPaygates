@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.0.3" version_id="9" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.1" version_id="10" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bdPaygate_logs" parent_navigation_id="logs" display_order="9999" link="logs/bdpaygate" admin_permission_id="viewLogs" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
@@ -144,8 +144,12 @@
   <code_event_listeners>
     <listener event_id="file_health_check" execute_order="10" callback_class="bdPaygate_Listener" callback_method="file_health_check" active="1" description=""/>
     <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
     <listener event_id="load_class_model" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
     <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_create" active="1" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_hook" active="1" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_post_render" active="1" description=""/>
   </code_event_listeners>
   <cron/>
   <email_templates>
@@ -184,6 +188,8 @@
   </permissions>
   <phrases>
     <phrase title="admin_navigation_bdPaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Log]]></phrase>
+    <phrase title="bdpaygate_cannot_purchase_self_resource" version_id="9" version_string="1.0.3"><![CDATA[You cannot purchase your own resource.]]></phrase>
+    <phrase title="bdpaygate_cannot_repurchase_resource" version_id="9" version_string="1.0.3"><![CDATA[You have purchased this resource already.]]></phrase>
     <phrase title="bdpaygate_failed_transaction_text" version_id="5" version_string="1.0-dev"><![CDATA[The following transaction has encountered problem at {boardTitle}:
 
 Processor: {processorId}
@@ -201,7 +207,13 @@ The detail log is available here: {link}]]></phrase>
     <phrase title="bdpaygate_log_result" version_id="2" version_string="0.9-dev"><![CDATA[Result]]></phrase>
     <phrase title="bdpaygate_no_transaction_have_been_logged" version_id="2" version_string="0.9-dev"><![CDATA[No transaction have been logged.]]></phrase>
     <phrase title="bdpaygate_paypal_call_to_action" version_id="1" version_string="0.9-dev"><![CDATA[Pay with PayPal]]></phrase>
+    <phrase title="bdpaygate_purchased_resources" version_id="9" version_string="1.0.3"><![CDATA[Purchased Resources]]></phrase>
+    <phrase title="bdpaygate_purchase_resource" version_id="9" version_string="1.0.3"><![CDATA[Purchase Resource]]></phrase>
+    <phrase title="bdpaygate_purchase_resource_complete" version_id="9" version_string="1.0.3"><![CDATA[Thank you for purchasing this resource.<br/>
+When the payment has been approved, you will be able to download the resource. It will also be available in <a href="{purchased_link}">Purchased Resources</a> page.]]></phrase>
     <phrase title="bdpaygate_requested_log_entry_not_found" version_id="2" version_string="0.9-dev"><![CDATA[The requested log entry could not be found.]]></phrase>
+    <phrase title="bdpaygate_you_have_not_purchased_resources" version_id="9" version_string="1.0.3"><![CDATA[You have not purchased any resources.]]></phrase>
+    <phrase title="bdpaygate_you_must_purchase_resource_to_download" version_id="9" version_string="1.0.3"><![CDATA[You must purchase the resource in order to download.]]></phrase>
     <phrase title="bdpaytate_sure_you_want_to_clear_log" version_id="2" version_string="0.9-dev"><![CDATA[Are you sure you want to clear the [bd] Paygate log?]]></phrase>
     <phrase title="option_bdPaygate0_emailOnFailure" version_id="5" version_string="1.0-dev"><![CDATA[Send Email on Failure]]></phrase>
     <phrase title="option_bdPaygate0_emailOnFailure_explain" version_id="5" version_string="1.0-dev"><![CDATA[Enter the email address that will receive a notification email if a paygate reports a failed transaction. Leave blank to disable this feature.]]></phrase>
@@ -211,6 +223,19 @@ The detail log is available here: {link}]]></phrase>
   <route_prefixes/>
   <style_properties/>
   <templates>
+    <template title="bdpaygate.css" version_id="9" version_string="1.0.3"><![CDATA[#ctrl_bdpaygate_price
+{
+	margin-left: 5px;
+	width: 75px;
+	box-sizing: border-box;
+}
+
+#ctrl_bdpaygate_currency
+{
+	margin-left: 5px;
+	width: 65px;
+	box-sizing: border-box;
+}]]></template>
     <template title="bdpaygate_account_upgrades" version_id="1" version_string="0.9-dev"><![CDATA[<xen:title>{xen:phrase account_upgrades}</xen:title>
 
 <xen:require css="account_upgrades.css" />
@@ -270,6 +295,87 @@ The detail log is available here: {link}]]></phrase>
 		</xen:foreach>
 		</ul>
 	</div>
+</xen:if>]]></template>
+    <template title="bdpaygate_resources_tab_links" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="{$visitor.user_id}"><li><a href="{xen:link resources/purchased}">{xen:phrase bdpaygate_purchased_resources}</a></li></xen:if>]]></template>
+    <template title="bdpaygate_resource_add" version_id="9" version_string="1.0.3"><![CDATA[<xen:require css="bdpaygate.css" />
+
+<li>
+	<input type="text" name="bdpaygate_price" id="ctrl_bdpaygate_price" class="textCtrl" placeholder="{xen:phrase price}"
+	/><select name="bdpaygate_currency" class="textCtrl" id="ctrl_bdpaygate_currency">
+		<option value="">&nbsp;</option>
+		<option value="usd">USD</option>
+		<option value="cad">CAD</option>
+		<option value="aud">AUD</option>
+		<option value="gbp">GBP</option>
+		<option value="eur">EUR</option>
+	</select>
+</li>]]></template>
+    <template title="bdpaygate_resource_edit" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url})">
+	<xen:require css="bdpaygate.css" />
+
+	<fieldset>
+		<dl class="ctrlUnit">
+			<dt>{xen:phrase cost}:</dt>
+			<dd>
+				<input type="text" name="bdpaygate_price" value="{$resource.price}" id="ctrl_bdpaygate_price" class="textCtrl" placeholder="{xen:phrase price}"
+				/><select name="bdpaygate_currency" class="textCtrl" id="ctrl_bdpaygate_currency">
+					<option value="">&nbsp;</option>
+					<option value="usd" {xen:selected '{$resource.currency} == "usd"'}>USD</option>
+					<option value="cad" {xen:selected '{$resource.currency} == "cad"'}>CAD</option>
+					<option value="aud" {xen:selected '{$resource.currency} == "aud"'}>AUD</option>
+					<option value="gbp" {xen:selected '{$resource.currency} == "gbp"'}>GBP</option>
+					<option value="eur" {xen:selected '{$resource.currency} == "eur"'}>EUR</option>
+				</select>
+			</dd>
+		</dl>
+	</fieldset>
+</xen:if>]]></template>
+    <template title="bdpaygate_resource_purchase" version_id="9" version_string="1.0.3"><![CDATA[<xen:title>{xen:phrase bdpaygate_purchase_resource}: {$resource.title}</xen:title>
+
+<form class="xenForm formOverlay">
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase cost}:</dt>
+		<dd>{$resource.cost}</dd>
+	</dl>
+
+	<xen:foreach loop="$forms" value="$form">
+		<dl class="ctrlUnit">
+			<dt>&nbsp;</dt>
+			<dd>{xen:raw $form}</dd>
+		</dl>
+	</xen:foreach>
+</form>]]></template>
+    <template title="bdpaygate_resource_purchased" version_id="9" version_string="1.0.3"><![CDATA[<xen:title>{xen:phrase bdpaygate_purchased_resources}</xen:title>
+
+<xen:require css="resource_list.css" />
+
+<div class="sectionMain">
+	<xen:if is="{$resources}">
+
+		<ol class="resourceList">
+		<xen:foreach loop="$resources" value="$resource">
+			<xen:include template="resource_list_item">
+				<xen:set var="$listItemExtraHtml">
+					<a href="{xen:link resources/download, $resource, 'version={$resource.current_version_id}'}">
+						{xen:phrase download}
+					</a>
+				</xen:set>
+			</xen:include>
+		</xen:foreach>
+		</ol>
+
+	<xen:else />
+		<div class="primaryContent">{xen:phrase you_not_currently_watching_any_resources}</div>
+	</xen:if>
+</div>]]></template>
+    <template title="bdpaygate_resource_view_header" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="{$resource.canPurchase} AND empty({$resource.is_fileless}) AND empty({$resource.download_url})">
+	<xen:if is="!empty({$resource.price}) AND !empty({$resource.currency})">
+		<li>
+			<a href="{xen:link resources/purchase, $resource}" class="OverlayTrigger">
+				{xen:phrase buy_now_for_x, 'cost={$resource.cost}'}
+			</a>
+		</li>
+	</xen:if>
 </xen:if>]]></template>
   </templates>
   <bb_code_media_sites/>

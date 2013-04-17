@@ -28,6 +28,43 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base {
 				'route_prefix_admin' => false,
 				'controller_admin' => false
 			)
+		),
+		'purchase' => array(
+			'name' => 'purchase',
+			'camelCase' => 'Purchase',
+			'camelCasePlural' => 'Purchases',
+			'camelCaseWSpace' => 'Purchase',
+			'fields' => array(
+				'purchase_id' => array('name' => 'purchase_id', 'type' => 'uint', 'autoIncrement' => true),
+				'user_id' => array('name' => 'user_id', 'type' => 'uint', 'required' => true),
+				'content_type' => array('name' => 'content_type', 'type' => 'string', 'length' => 25, 'required' => true),
+				'content_id' => array('name' => 'content_id', 'type' => 'uint', 'required' => true),
+				'purchase_date' => array('name' => 'purchase_date', 'type' => 'uint', 'required' => true),
+				'purchased_amount' => array('name' => 'purchased_amount', 'type' => 'string', 'length' => 10, 'required' => true),
+				'purchased_currency' => array('name' => 'purchased_currency', 'type' => 'string', 'length' => 3, 'required' => true)
+			),
+			'phrases' => array(),
+			'id_field' => 'purchase_id',
+			'title_field' => 'content_type',
+			'primaryKey' => array('purchase_id'),
+			'indeces' => array(
+				'content_type_content_id' => array(
+					'name' => 'content_type_content_id',
+					'fields' => array('content_type', 'content_id'),
+					'type' => 'NORMAL'
+				),
+				'user_id' => array(
+						'name' => 'user_id',
+						'fields' => array('user_id'),
+						'type' => 'NORMAL'
+				)
+			),
+			'files' => array(
+				'data_writer' => array('className' => 'bdPaygate_DataWriter_Purchase', 'hash' => '5a647e591a893776f62e5d920a291cb9'),
+				'model' => array('className' => 'bdPaygate_Model_Purchase', 'hash' => '8fc24f3e66bd6fad338d9d9cfe4c5670'),
+				'route_prefix_admin' => false,
+				'controller_admin' => false
+			)
 		)
 	);
 	protected $_dataPatches = array();

@@ -337,7 +337,7 @@ abstract class bdPaygate_Processor_Abstract
 	public static function prepareForms(array $processors, $amount, $currency, $itemName, $itemId, $recurringInterval = false, $recurringUnit = false, array $extraData = array())
 	{
 		$forms = array();
-			
+
 		foreach ($processors as $processorId => $processor)
 		{
 			if (!$processor->isAvailable())
