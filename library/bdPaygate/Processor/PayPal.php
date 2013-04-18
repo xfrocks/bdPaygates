@@ -65,7 +65,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		
 		try
 		{
-			if ($filtered['test_ipn'] && XenForo_Application::debugMode())
+			if ($filtered['test_ipn'] && $this->_sandboxMode())
 			{
 				$validator = XenForo_Helper_Http::getClient('https://www.sandbox.paypal.com/cgi-bin/webscr');
 			}
