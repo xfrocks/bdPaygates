@@ -40,35 +40,35 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 				'purchased_link' => XenForo_Link::buildPublicLink('resources/purchased'),
 		)));
 	}
-	
+
 	public function actionPurchased()
 	{
 		/* @var $purchaseModel bdPaygate_Model_Purchase */
 		$purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
-		
+
 		$visitor = XenForo_Visitor::getInstance();
-		
+
 		$purchases = $purchaseModel->getPurchases(array(
 				'content_type' => 'resource',
 				'user_id' => $visitor['user_id'],
 		));
-		
+
 		if (empty($purchases))
 		{
 			return $this->responseMessage(new XenForo_Phrase('bdpaygate_you_have_not_purchased_resources'));
 		}
-		
+
 		$resourceIds = array();
 		foreach ($purchases as $purchase)
 		{
 			$resourceIds[] = $purchase['content_id'];
 		}
 		$resources = $this->_getResourceModel()->getResourcesByIds($resourceIds);
-		
+
 		$viewParams = array(
 				'resources' => $this->_getResourceModel()->prepareResources($resources),
 		);
-		
+
 		return $this->responseView(
 				'bdPaygate_ViewPublic_Resource_Purchased',
 				'bdpaygate_resource_purchased',
@@ -146,5 +146,16 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		}
 
 		unset($GLOBALS[bdPaygate_Constant::GLOBALS_XFRM_CONTROLLERPUBLIC_RESOURCE_SAVE]);
+	}
+
+	protected function _checkCsrf($action)
+	{
+		if (strtolower($action) == 'purchasecomplete')
+		{
+			// may be coming from external payment gateway
+			return;
+		}
+
+		return parent::_checkCsrf($action);
 	}
 }

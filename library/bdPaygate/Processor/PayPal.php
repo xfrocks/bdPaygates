@@ -81,6 +81,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			{
 				if (!empty($validatorResponse))
 				{
+					$transactionDetails['validator'] = $validator->getUri(true);
 					$transactionDetails['validator_status'] = $validatorResponse->getStatus();
 					$transactionDetails['validator_response'] = $validatorResponse->getBody();
 				}
