@@ -1,7 +1,7 @@
 <?php
 
 class bdPaygate_Model_Purchase extends XenForo_Model {
-	
+
 	public function getPurchaseByContentAndUser($contentType, $contentId, $userId, array $fetchOptions = array())
 	{
 		$purchases = $this->getPurchases(array(
@@ -20,7 +20,7 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		$dw->set('content_id', $contentId);
 		$dw->set('user_id', $userId);
 		$dw->set('purchase_date', XenForo_Application::$time);
-		
+
 		if (!empty($amount) AND !empty($currency))
 		{
 			$dw->set('purchased_amount', $amount);
@@ -31,13 +31,13 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 			$dw->set('purchased_amount', 0);
 			$dw->set('purchased_currency', '');
 		}
-		
+
 		$dw->save();
 		$record = $dw->getMergedData();
-		
+
 		return $record['purchase_id'];
 	}
-	
+
 	public function deleteRecords($contentType, $contentId, $userId)
 	{
 		$records = $this->getPurchases(array(
@@ -45,7 +45,7 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 				'content_id' => $contentId,
 				'user_id' => $userId,
 		));
-		
+
 		XenForo_Db::beginTransaction();
 
 		foreach ($records as $record)
@@ -60,7 +60,27 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		return count($records);
 	}
 
-/* Start auto-generated lines of code. Change made will be overwriten... */
+	public function deleteUserRecords($userId)
+	{
+		$records = $this->getPurchases(array(
+				'user_id' => $userId,
+		));
+
+		XenForo_Db::beginTransaction();
+
+		foreach ($records as $record)
+		{
+			$dw = XenForo_DataWriter::create('bdPaygate_DataWriter_Purchase');
+			$dw->setExistingData($record, true);
+			$dw->delete();
+		}
+
+		XenForo_Db::commit();
+
+		return count($records);
+	}
+
+	/* Start auto-generated lines of code. Change made will be overwriten... */
 
 	public function getList(array $conditions = array(), array $fetchOptions = array()) {
 		$data = $this->getPurchases($conditions, $fetchOptions);
@@ -87,13 +107,13 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		$limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
 
 		$all = $this->fetchAllKeyed($this->limitQueryResults("
-			SELECT purchase.*
+				SELECT purchase.*
 				$joinOptions[selectFields]
-			FROM `xf_bdpaygate_purchase` AS purchase
+				FROM `xf_bdpaygate_purchase` AS purchase
 				$joinOptions[joinTables]
-			WHERE $whereConditions
+				WHERE $whereConditions
 				$orderClause
-			", $limitOptions['limit'], $limitOptions['offset']
+				", $limitOptions['limit'], $limitOptions['offset']
 		), 'purchase_id');
 
 		$this->_getPurchasesCustomized($all, $fetchOptions);
@@ -109,11 +129,11 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		$limitOptions = $this->prepareLimitFetchOptions($fetchOptions);
 
 		return $this->_getDb()->fetchOne("
-			SELECT COUNT(*)
-			FROM `xf_bdpaygate_purchase` AS purchase
+				SELECT COUNT(*)
+				FROM `xf_bdpaygate_purchase` AS purchase
 				$joinOptions[joinTables]
-			WHERE $whereConditions
-		");
+				WHERE $whereConditions
+				");
 	}
 
 	public function preparePurchaseConditions(array $conditions = array(), array $fetchOptions = array()) {
@@ -209,13 +229,13 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		$this->_preparePurchaseFetchOptionsCustomized($selectFields,  $joinTables, $fetchOptions);
 
 		return array(
-			'selectFields' => $selectFields,
-			'joinTables'   => $joinTables
+				'selectFields' => $selectFields,
+				'joinTables'   => $joinTables
 		);
 	}
 
 	public function preparePurchaseOrderOptions(array $fetchOptions = array(), $defaultOrderSql = '') {
-		$choices = array(	
+		$choices = array(
 		);
 
 		$this->_preparePurchaseOrderOptionsCustomized($choices, $fetchOptions);
@@ -223,7 +243,7 @@ class bdPaygate_Model_Purchase extends XenForo_Model {
 		return $this->getOrderByClause($choices, $fetchOptions, $defaultOrderSql);
 	}
 
-/* End auto-generated lines of code. Feel free to make changes below */
+	/* End auto-generated lines of code. Feel free to make changes below */
 
 	protected function _getPurchasesCustomized(array &$data, array $fetchOptions) {
 		// customized code goes here
