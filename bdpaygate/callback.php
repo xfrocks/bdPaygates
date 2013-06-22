@@ -100,7 +100,6 @@ catch (Exception $e)
 
 	$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
 	$logMessage = 'Exception: ' . $e->getMessage();
-	$logDetails['_e'] = $e;
 }
 
 $processorModel->log($processorId, $transactionId, $paymentStatus, $logMessage, $logDetails);

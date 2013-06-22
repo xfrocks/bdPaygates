@@ -96,6 +96,11 @@ class bdPaygate_Listener
 				break;
 		}
 	}
+	
+	public static function bdshop_stock_pricing_get_systems(array &$systems)
+	{
+		$systems[] = 'bdPaygate_bdShop_StockPricing';
+	}
 
 	public static function file_health_check(XenForo_ControllerAdmin_Abstract $controller, array &$hashes)
 	{

@@ -28,7 +28,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			$userId = intval(array_shift($parts));
 			$hash = array_shift($parts);
 			$data = $parts;
-				
+
 			if ($userId > 0)
 			{
 				$user = $this->getModelFromCache('XenForo_Model_User')->getFullUserById($userId);
@@ -48,7 +48,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			{
 				return false;
 			}
-				
+
 			return true;
 		}
 
@@ -125,6 +125,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				case 'resource_purchase':
 					$message = $this->_processResourcePurchase(true, $user, $data, $processor, $amount, $currency);
 					break;
+				case 'bdshop':
+					$message = $this->_processBdShop(true, $user, $data, $processor, $amount, $currency);
+					break;
 				default:
 					$message = $this->_processIntegratedAction($action, $user, $data, $processor, $amount, $currency);
 					break;
@@ -151,6 +154,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 					break;
 				case 'resource_purchase':
 					$message = $this->_processResourcePurchase(false, $user, $data, $processor, $amount, $currency);
+					break;
+				case 'bdshop':
+					$message = $this->_processBdShop(false, $user, $data, $processor, $amount, $currency);
 					break;
 				default:
 					$message = $this->_revertIntegratedAction($action, $user, $data, $processor, $amount, $currency);
@@ -256,7 +262,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		else
 		{
 			// TODO: verify payment amount?
-			
+
 			$recordCount = $purchaseModel->deleteRecords('resource', $resource['resource_id'], $user['user_id']);
 			return sprintf('Deleted purchase record for %s #%d, user %s (records: %d)',
 					'resource', $resource['resource_id'],
@@ -266,6 +272,35 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		}
 	}
 
+	protected function _processBdShop($isAccepted, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
+	{
+		if ($isAccepted)
+		{
+			if (count($data) < 2)
+			{
+				return '[ERROR] Invalid payment data';
+			}
+
+			$reversed = array_reverse($data);
+			$dataAmount = array_shift($reversed);
+			$dataCurrency = array_shift($reversed);
+
+			if (!$this->_verifyPaymentAmount($processor, $amount, $currency, $dataAmount, $dataCurrency))
+			{
+				return '[ERROR] Invalid payment amount';
+			}
+
+			$pricingSystemObj = bdShop_StockPricing_Abstract::create('bdPaygate_bdShop_StockPricing');
+			$processed = $pricingSystemObj->process($data);
+
+			return sprintf('[bd] Shop\'s result: %s', $processed);
+		}
+		else
+		{
+			// TODO
+			return sprintf('Please perform manual reversion for this transaction');
+		}
+	}
 
 	protected function _processIntegratedAction($action, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
