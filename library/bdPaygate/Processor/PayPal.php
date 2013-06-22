@@ -5,26 +5,26 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	public function isAvailable()
 	{
 		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
-		
+
 		return !empty($paypalAccount);
 	}
-	
+
 	public function getSupportedCurrencies()
 	{
 		return array(
-			bdPaygate_Processor_Abstract::CURRENCY_USD,
-			bdPaygate_Processor_Abstract::CURRENCY_CAD,
-			bdPaygate_Processor_Abstract::CURRENCY_AUD,
-			bdPaygate_Processor_Abstract::CURRENCY_GBP,
-			bdPaygate_Processor_Abstract::CURRENCY_EUR,
+				bdPaygate_Processor_Abstract::CURRENCY_USD,
+				bdPaygate_Processor_Abstract::CURRENCY_CAD,
+				bdPaygate_Processor_Abstract::CURRENCY_AUD,
+				bdPaygate_Processor_Abstract::CURRENCY_GBP,
+				bdPaygate_Processor_Abstract::CURRENCY_EUR,
 		);
 	}
-	
+
 	public function isRecurringSupported()
 	{
 		return true;
 	}
-	
+
 	public function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId)
 	{
 		$amount = false;
@@ -37,17 +37,17 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	{
 		$input = new XenForo_Input($request);
 		$filtered = $input->filter(array(
-			'test_ipn' => XenForo_Input::UINT,
-			'business' => XenForo_Input::STRING,
-			'receiver_email' => XenForo_Input::STRING,
-			'txn_type' => XenForo_Input::STRING,
-			'txn_id' => XenForo_Input::STRING,
-			'mc_currency' => XenForo_Input::STRING,
-			'mc_gross' => XenForo_Input::UNUM,
-			'payment_status' => XenForo_Input::STRING,
-			'custom' => XenForo_Input::STRING,
+				'test_ipn' => XenForo_Input::UINT,
+				'business' => XenForo_Input::STRING,
+				'receiver_email' => XenForo_Input::STRING,
+				'txn_type' => XenForo_Input::STRING,
+				'txn_id' => XenForo_Input::STRING,
+				'mc_currency' => XenForo_Input::STRING,
+				'mc_gross' => XenForo_Input::UNUM,
+				'payment_status' => XenForo_Input::STRING,
+				'custom' => XenForo_Input::STRING,
 		));
-		
+
 		$transactionId = (!empty($filtered['txn_id']) ? ('paypal_' . $filtered['txn_id']) : '');
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
 		$transactionDetails = array_merge($_POST, $filtered);
@@ -55,14 +55,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		$amount = $filtered['mc_gross'];
 		$currency = $filtered['mc_currency'];
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
-		
-		$log = $processorModel->getLogByTransactionId($transactionId);
-		if (!empty($log))
-		{
-			$this->_setError("Transaction {$transactionId} has already been processed");
-			return false;
-		}
-		
+
 		try
 		{
 			if ($filtered['test_ipn'] && $this->_sandboxMode())
@@ -85,7 +78,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 					$transactionDetails['validator_status'] = $validatorResponse->getStatus();
 					$transactionDetails['validator_response'] = $validatorResponse->getBody();
 				}
-				
+
 				$this->_setError('Request not validated');
 				return false;
 			}
@@ -97,13 +90,13 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		}
 
 		if (strtolower($filtered['business']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount)
-			&& strtolower($filtered['receiver_email']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount)
+		&& strtolower($filtered['receiver_email']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount)
 		)
 		{
 			$this->_setError('Invalid business or receiver_email');
 			return false;
 		}
-		
+
 		switch ($filtered['txn_type'])
 		{
 			case 'web_accept':
@@ -116,25 +109,25 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		{
 			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
 		}
-		
+
 		return true;
 	}
-	
+
 	public function generateFormData($amount, $currency, $itemName, $itemId, $recurringInterval = false, $recurringUnit = false, array $extraData = array())
 	{
 		$this->_assertAmount($amount);
 		$this->_assertCurrency($currency);
 		$this->_assertItem($itemName, $itemId);
 		$this->_assertRecurring($recurringInterval, $recurringUnit);
-		
+
 		$formAction = $this->_sandboxMode()
-			? 'https://www.sandbox.paypal.com/cgi-bin/websrc'
-			: 'https://www.paypal.com/cgi-bin/websrc';
+		? 'https://www.sandbox.paypal.com/cgi-bin/websrc'
+				: 'https://www.paypal.com/cgi-bin/websrc';
 		$callToAction = new XenForo_Phrase('bdpaygate_paypal_call_to_action');
 		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
 		$returnUrl = $this->_generateReturnUrl($extraData);
 		$callbackUrl = $this->_generateCallbackUrl($extraData);
-		
+
 		// convert variables to PayPal format
 		$currencyPP = utf8_strtoupper($currency);
 		$recurringUnitPP = '';
@@ -150,7 +143,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 				$recurringUnitPP = 'Y';
 				break;
 		}
-		
+
 		if ($recurringInterval !== false AND $recurringUnit !== false)
 		{
 			// recurring payment
@@ -162,9 +155,9 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	<input type="hidden" name="t3" value="{$recurringUnitPP}" />
 	<input type="hidden" name="src" value="1" />
 	<input type="hidden" name="sra" value="1" />
-	
+
 	<input type="submit" value="{$callToAction}" class="button" />
-	
+
 	<input type="hidden" name="business" value="{$paypalAccount}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
 	<input type="hidden" name="item_name" value="$itemName" />
@@ -172,9 +165,9 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	<input type="hidden" name="no_note" value="1" />
 	<input type="hidden" name="no_shipping" value="1" />
 	<input type="hidden" name="custom" value="$itemId" />
-	
+
 	<input type="hidden" name="charset" value="utf-8" />
-	
+
 	<input type="hidden" name="return" value="{$returnUrl}" />
 	<input type="hidden" name="notify_url" value="{$callbackUrl}" />
 </form>
@@ -187,9 +180,9 @@ EOF;
 <form action="{$formAction}" method="POST">
 	<input type="hidden" name="cmd" value="_xclick" />
 	<input type="hidden" name="amount" value="{$amount}" />
-	
+
 	<input type="submit" value="{$callToAction}" class="button" />
-	
+
 	<input type="hidden" name="business" value="{$paypalAccount}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
 	<input type="hidden" name="item_name" value="$itemName" />
@@ -197,15 +190,15 @@ EOF;
 	<input type="hidden" name="no_note" value="1" />
 	<input type="hidden" name="no_shipping" value="1" />
 	<input type="hidden" name="custom" value="$itemId" />
-	
+
 	<input type="hidden" name="charset" value="utf-8" />
-	
+
 	<input type="hidden" name="return" value="{$returnUrl}" />
 	<input type="hidden" name="notify_url" value="{$callbackUrl}" />
 </form>
 EOF;
 		}
-		
+
 		return $form;
 	}
 }

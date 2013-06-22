@@ -77,7 +77,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		if ($logType !== bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED)
 		{
 			$emailOnFailure = XenForo_Application::getOptions()->get('bdPaygate0_emailOnFailure');
-			file_put_contents('internal_data/bdpaygate.txt', $emailOnFailure);
+
 			if (!empty($emailOnFailure))
 			{
 				// send email notification to administrator for failed transaction

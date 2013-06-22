@@ -21,7 +21,7 @@ if ($fileDir === false AND !empty($scriptFilename))
 	if (file_exists($parentOfDirOfScriptFilename . $pathToCheck))
 	{
 		$fileDir = $parentOfDirOfScriptFilename;
-	} 
+	}
 }
 if ($fileDir === false)
 {
@@ -90,6 +90,27 @@ try
 	}
 	else
 	{
+		if (!empty($transactionId))
+		{
+			$existingTransactions = $processorModel->getModelFromCache('bdPaygate_Model_Log')->getLogs(array('transaction_id' => $transactionId));
+			foreach ($existingTransactions as $existingTransaction)
+			{
+				if ($existingTransaction['log_type'] === $paymentStatus)
+				{
+					$logMessage = "Transaction {$transactionId}/{$paymentStatus} has already been processed";
+					$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
+
+					$response->setHttpResponseCode(403);
+				}
+			}
+		}
+	}
+
+	if (in_array($paymentStatus, array(
+			bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED,
+			bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
+	)))
+	{
 		$logMessage = $processor->processTransaction($paymentStatus, $itemId, $amount, $currency);
 	}
 }
@@ -107,7 +128,7 @@ $processorModel->log($processorId, $transactionId, $paymentStatus, $logMessage, 
 if (!$processor->redirectOnCallback($request, $paymentStatus, $logMessage))
 {
 	$response->setBody(htmlspecialchars($logMessage));
-	
+
 	try
 	{
 		if (!headers_sent())
