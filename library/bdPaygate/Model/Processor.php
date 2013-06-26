@@ -297,8 +297,10 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		}
 		else
 		{
-			// TODO
-			return sprintf('Please perform manual reversion for this transaction');
+			$pricingSystemObj = bdShop_StockPricing_Abstract::create('bdPaygate_bdShop_StockPricing');
+			$processed = $pricingSystemObj->revert($data);
+
+			return sprintf('[bd] Shop\'s result: %s', $processed);
 		}
 	}
 
