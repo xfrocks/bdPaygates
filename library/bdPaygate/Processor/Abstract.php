@@ -313,6 +313,11 @@ abstract class bdPaygate_Processor_Abstract
 		return $sandboxMode > 0;
 	}
 
+	/**
+	 * @param string $class
+	 * @throws XenForo_Exception
+	 * @return bdPaygate_Processor_Abstract
+	 */
 	public static function create($class)
 	{
 		$createClass = XenForo_Application::resolveDynamicClass($class, 'bdpaygate_processor');
@@ -343,14 +348,14 @@ abstract class bdPaygate_Processor_Abstract
 				// since v0.9-dev3
 				continue;
 			}
-				
+
 			if ((!empty($recurringInterval) OR !empty($recurringUnit)) AND !$processor->isRecurringSupported())
 			{
 				// this upgrade require recurring payments
 				// but this processor doesn't support it, next
 				continue;
 			}
-				
+
 			if (!$processor->isCurrencySupported($currency))
 			{
 				// this processor doesn't support specified currency for
@@ -368,7 +373,7 @@ abstract class bdPaygate_Processor_Abstract
 					$extraData
 			);
 			$form = utf8_trim($form);
-				
+
 			if (!empty($form))
 			{
 				$forms[$processorId] = $form;
