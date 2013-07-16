@@ -111,6 +111,7 @@ try
 			bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
 	)))
 	{
+		$processor->saveLastTransaction($transactionId, $paymentStatus, $logDetails);
 		$logMessage = $processor->processTransaction($paymentStatus, $itemId, $amount, $currency);
 	}
 }
@@ -120,7 +121,7 @@ catch (Exception $e)
 	XenForo_Error::logException($e);
 
 	$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
-	$logMessage = 'Exception: ' . $e->getMessage();
+	$logMessage = 'Exception: ' . $e->getMessage() . "\n" . $e->getTraceAsString();
 }
 
 $processorModel->log($processorId, $transactionId, $paymentStatus, $logMessage, $logDetails);

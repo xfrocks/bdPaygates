@@ -21,6 +21,9 @@ abstract class bdPaygate_Processor_Abstract
 	const PAYMENT_STATUS_OTHER = 'other';
 
 	protected $_lastError = false;
+	protected $_lastTransactionId = false;
+	protected $_lastPaymentStatus = false;
+	protected $_lastTransactionDetails = false;
 
 	/**
 	 * Checks whether the processor is available and ready
@@ -45,7 +48,7 @@ abstract class bdPaygate_Processor_Abstract
 	 * specified currency.
 	 *
 	 * @param string $currency
-	*/
+	 */
 	public function isCurrencySupported($currency)
 	{
 		$all = $this->getSupportedCurrencies();
@@ -70,7 +73,7 @@ abstract class bdPaygate_Processor_Abstract
 	 * @param out $itemId
 	 *
 	 * @return bool
-	*/
+	 */
 	public abstract function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId);
 
 	/**
@@ -88,7 +91,7 @@ abstract class bdPaygate_Processor_Abstract
 	 * @param out $currency
 	 *
 	 * @return bool
-	*/
+	 */
 	public function validateCallback2(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId, &$amount, &$currency)
 	{
 		throw new bdPaygate_Exception_NotImplemented();
@@ -124,10 +127,54 @@ abstract class bdPaygate_Processor_Abstract
 	 * will return boolean value false.
 	 *
 	 * @return string || XenForo_Phrase || bool
-	*/
+	 */
 	public function getLastError()
 	{
 		return $this->_lastError;
+	}
+
+	/**
+	 * Returns the latest transaction id processed. If no transaction has been
+	 * processed, this method will return boolean value false.
+	 *
+	 * @return string || bool
+	 */
+	public function getLastTransactionId()
+	{
+		return $this->_lastTransactionId;
+	}
+
+	/**
+	 * Returns the latest payment status processed. If no transaction has been
+	 * processed, this method will return boolean value false.
+	 *
+	 * @return string || bool
+	 */
+	public function getLastPaymentStatus()
+	{
+		return $this->_lastPaymentStatus;
+	}
+
+	/**
+	 * Returns the latest transaction details processed. If no transaction has been
+	 * processed, this method will return boolean value false.
+	 *
+	 * @return array || bool
+	 */
+	public function getLastTransactionDetails()
+	{
+		return $this->_lastTransactionDetails;
+	}
+
+	/**
+	 * Saves the latest transaction information. This method should only be called by
+	 * callback.php script
+	 */
+	public function saveLastTransaction($transactionId, $paymentStatus, $transactionDetails)
+	{
+		$this->_lastTransactionId = $transactionId;
+		$this->_lastPaymentStatus = $paymentStatus;
+		$this->_lastTransactionDetails = $transactionDetails;
 	}
 
 	/**
@@ -363,15 +410,7 @@ abstract class bdPaygate_Processor_Abstract
 				continue;
 			}
 
-			$form = $processor->generateFormData(
-					$amount,
-					$currency,
-					$itemName,
-					$itemId,
-					$recurringInterval,
-					$recurringUnit,
-					$extraData
-			);
+			$form = $processor->generateFormData($amount, $currency, $itemName, $itemId, $recurringInterval, $recurringUnit, $extraData);
 			$form = utf8_trim($form);
 
 			if (!empty($form))
@@ -382,4 +421,5 @@ abstract class bdPaygate_Processor_Abstract
 
 		return $forms;
 	}
+
 }
