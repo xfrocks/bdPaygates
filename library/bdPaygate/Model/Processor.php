@@ -4,17 +4,12 @@ class bdPaygate_Model_Processor extends XenForo_Model
 {
 	public function getProcessorNames()
 	{
-		return array(
-				'paypal' => 'bdPaygate_Processor_PayPal',
-		);
+		return array('paypal' => 'bdPaygate_Processor_PayPal', );
 	}
 
 	public function generateItemId($action, XenForo_Visitor $visitor, array $data)
 	{
-		return strval($action)
-		. '|' . $visitor['user_id']
-		. '|' . $this->generateHashForItemId($action, $visitor, $data)
-		. (!empty($data) ? ('|' . implode('|', array_map('strval', $data))) : '');
+		return strval($action) . '|' . $visitor['user_id'] . '|' . $this->generateHashForItemId($action, $visitor, $data) . (!empty($data) ? ('|' . implode('|', array_map('strval', $data))) : '');
 	}
 
 	public function breakdownItemId($itemId, &$action, &$user, &$data)
@@ -64,12 +59,12 @@ class bdPaygate_Model_Processor extends XenForo_Model
 	public function log($processorId, $transactionId, $logType, $logMessage, $logDetails)
 	{
 		$this->_getDb()->insert('xf_bdpaygate_log', array(
-				'processor' => $processorId,
-				'transaction_id' => $transactionId,
-				'log_type' => $logType,
-				'log_message' => substr($logMessage, 0, 255),
-				'log_details' => serialize($logDetails),
-				'log_date' => XenForo_Application::$time
+			'processor' => $processorId,
+			'transaction_id' => $transactionId,
+			'log_type' => $logType,
+			'log_message' => substr($logMessage, 0, 255),
+			'log_details' => serialize($logDetails),
+			'log_date' => XenForo_Application::$time
 		));
 
 		$logId = $this->_getDb()->lastInsertId();
@@ -82,12 +77,12 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			{
 				// send email notification to administrator for failed transaction
 				$mail = XenForo_Mail::create('bdpaygate_failure', array(
-						'processorId' => $processorId,
-						'transactionId' => $transactionId,
-						'logType' => $logType,
-						'logMessage' => $logMessage,
-						'logDetails' => $logDetails,
-						'logId' => $logId,
+					'processorId' => $processorId,
+					'transactionId' => $transactionId,
+					'logType' => $logType,
+					'logMessage' => $logMessage,
+					'logDetails' => $logDetails,
+					'logId' => $logId,
 				));
 
 				$mail->queue($emailOnFailure);
@@ -248,27 +243,15 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				}
 			}
 
-			$purchaseRecordId = $purchaseModel->createRecord(
-					'resource', $resource['resource_id'],
-					$user['user_id'],
-					$amount, $currency
-			);
-			return sprintf('Created purchase record for %s #%d, user %s (record #%d)',
-					'resource', $resource['resource_id'],
-					$user['username'],
-					$purchaseRecordId
-			);
+			$purchaseRecordId = $purchaseModel->createRecord('resource', $resource['resource_id'], $user['user_id'], $amount, $currency);
+			return sprintf('Created purchase record for %s #%d, user %s (record #%d)', 'resource', $resource['resource_id'], $user['username'], $purchaseRecordId);
 		}
 		else
 		{
 			// TODO: verify payment amount?
 
 			$recordCount = $purchaseModel->deleteRecords('resource', $resource['resource_id'], $user['user_id']);
-			return sprintf('Deleted purchase record for %s #%d, user %s (records: %d)',
-					'resource', $resource['resource_id'],
-					$user['username'],
-					$recordCount
-			);
+			return sprintf('Deleted purchase record for %s #%d, user %s (records: %d)', 'resource', $resource['resource_id'], $user['username'], $recordCount);
 		}
 	}
 
@@ -291,14 +274,56 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			}
 
 			$pricingSystemObj = bdShop_StockPricing_Abstract::create('bdPaygate_bdShop_StockPricing');
-			$processed = $pricingSystemObj->process($data);
+
+			$transaction = $processor->getLastTransactionDetails();
+			if (empty($transaction))
+			{
+				$transaction = array();
+			}
+			$transaction = $transaction + array(
+				'_id' => $processor->getLastTransactionId(),
+				'_amount' => $amount,
+				'_currency' => $currency,
+			);
+
+			$processed = $pricingSystemObj->process($data, $transaction);
+
+			if (is_bool($processed))
+			{
+				$processed = $processed ? 'true' : 'false';
+			}
+			elseif (is_array($processed))
+			{
+				$processed = var_export($processed, true);
+			}
 
 			return sprintf('[bd] Shop\'s result: %s', $processed);
 		}
 		else
 		{
 			$pricingSystemObj = bdShop_StockPricing_Abstract::create('bdPaygate_bdShop_StockPricing');
-			$processed = $pricingSystemObj->revert($data);
+
+			$transaction = $processor->getLastTransactionDetails();
+			if (empty($transaction))
+			{
+				$transaction = array();
+			}
+			$transaction = $transaction + array(
+				'_id' => $processor->getLastTransactionId(),
+				'_amount' => $amount,
+				'_currency' => $currency,
+			);
+
+			$processed = $pricingSystemObj->revert($data, $transaction);
+
+			if (is_bool($processed))
+			{
+				$processed = $processed ? 'true' : 'false';
+			}
+			elseif (is_array($processed))
+			{
+				$processed = var_export($processed, true);
+			}
 
 			return sprintf('[bd] Shop\'s result: %s', $processed);
 		}
@@ -334,4 +359,5 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 		return true;
 	}
+
 }
