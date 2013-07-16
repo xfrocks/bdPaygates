@@ -107,7 +107,11 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		if ($filtered['payment_status'] == 'Refunded' || $filtered['payment_status'] == 'Reversed')
 		{
 			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
-			$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = $input['parent_txn_id'];
+			
+			if (!empty($filtered['parent_txn_id']))
+			{
+				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = 'paypal_' . $filtered['parent_txn_id'];
+			}
 		}
 
 		return true;
