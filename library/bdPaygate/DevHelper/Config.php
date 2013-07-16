@@ -68,7 +68,7 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base {
 		)
 	);
 	protected $_dataPatches = array();
-	protected $_exportPath = '/Users/sondh/Dropbox/XenForo/bdPaygate';
+	protected $_exportPath = '/Users/sondh/XenForo/bdPaygate';
 	protected $_exportIncludes = array('bdpaygate/callback.php');
 	
 	/**

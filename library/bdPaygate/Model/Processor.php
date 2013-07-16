@@ -281,9 +281,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				$transaction = array();
 			}
 			$transaction = $transaction + array(
-				'_id' => $processor->getLastTransactionId(),
-				'_amount' => $amount,
-				'_currency' => $currency,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_ID => $processor->getLastTransactionId(),
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_AMOUNT => $amount,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $currency,
 			);
 
 			$processed = $pricingSystemObj->process($data, $transaction);
@@ -309,10 +309,15 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				$transaction = array();
 			}
 			$transaction = $transaction + array(
-				'_id' => $processor->getLastTransactionId(),
-				'_amount' => $amount,
-				'_currency' => $currency,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_ID => $processor->getLastTransactionId(),
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_AMOUNT => $amount,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $currency,
 			);
+			
+			if (!empty($transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID]))
+			{
+				$transaction[bdShop_StockPricing_Abstract::TRANSACTION_DATA_PARENT_ID] = $transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID];
+			}
 
 			$processed = $pricingSystemObj->revert($data, $transaction);
 

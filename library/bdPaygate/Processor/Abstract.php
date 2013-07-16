@@ -19,6 +19,8 @@ abstract class bdPaygate_Processor_Abstract
 	const PAYMENT_STATUS_REJECTED = 'rejected';
 	const PAYMENT_STATUS_ERROR = 'error';
 	const PAYMENT_STATUS_OTHER = 'other';
+	
+	const TRANSACTION_DETAILS_REJECTED_TID = '_rejectedTransactionId';
 
 	protected $_lastError = false;
 	protected $_lastTransactionId = false;

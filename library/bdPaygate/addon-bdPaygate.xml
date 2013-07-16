@@ -120,6 +120,7 @@
 	</div>
 </div>]]></template>
   </admin_templates>
+  <admin_template_modifications/>
   <code_events>
     <event event_id="load_class_bdpaygate_processor"><![CDATA[<p>Called when instantiating a processor. This event can be used to extend the class that will be instantiated dynamically.</p>
 
@@ -142,15 +143,15 @@
 <p>This class must extend the non-existent XFCP_x class. This will be resolved at run time.</p>]]></event>
   </code_events>
   <code_event_listeners>
-    <listener event_id="bdshop_stock_pricing_get_systems" execute_order="10" callback_class="bdPaygate_Listener" callback_method="bdshop_stock_pricing_get_systems" active="1" description=""/>
-    <listener event_id="file_health_check" execute_order="10" callback_class="bdPaygate_Listener" callback_method="file_health_check" active="1" description=""/>
-    <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
-    <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
-    <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" description=""/>
-    <listener event_id="template_create" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_create" active="1" description=""/>
-    <listener event_id="template_hook" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_hook" active="1" description=""/>
-    <listener event_id="template_post_render" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_post_render" active="1" description=""/>
+    <listener event_id="bdshop_stock_pricing_get_systems" execute_order="10" callback_class="bdPaygate_Listener" callback_method="bdshop_stock_pricing_get_systems" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdPaygate_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_create" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_hook" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_post_render" active="1" hint="" description=""/>
   </code_event_listeners>
   <cron/>
   <email_templates>
@@ -168,6 +169,7 @@
       <body_html><![CDATA[]]></body_html>
     </template>
   </email_templates>
+  <email_template_modifications/>
   <optiongroups>
     <option option_id="bdPaygate0_emailOnFailure" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
@@ -379,5 +381,6 @@ When the payment has been approved, you will be able to download the resource. I
 	</xen:if>
 </xen:if>]]></template>
   </templates>
+  <public_template_modifications/>
   <bb_code_media_sites/>
 </addon>

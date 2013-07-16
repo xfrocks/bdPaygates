@@ -12,11 +12,11 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	public function getSupportedCurrencies()
 	{
 		return array(
-				bdPaygate_Processor_Abstract::CURRENCY_USD,
-				bdPaygate_Processor_Abstract::CURRENCY_CAD,
-				bdPaygate_Processor_Abstract::CURRENCY_AUD,
-				bdPaygate_Processor_Abstract::CURRENCY_GBP,
-				bdPaygate_Processor_Abstract::CURRENCY_EUR,
+			bdPaygate_Processor_Abstract::CURRENCY_USD,
+			bdPaygate_Processor_Abstract::CURRENCY_CAD,
+			bdPaygate_Processor_Abstract::CURRENCY_AUD,
+			bdPaygate_Processor_Abstract::CURRENCY_GBP,
+			bdPaygate_Processor_Abstract::CURRENCY_EUR,
 		);
 	}
 
@@ -37,15 +37,16 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	{
 		$input = new XenForo_Input($request);
 		$filtered = $input->filter(array(
-				'test_ipn' => XenForo_Input::UINT,
-				'business' => XenForo_Input::STRING,
-				'receiver_email' => XenForo_Input::STRING,
-				'txn_type' => XenForo_Input::STRING,
-				'txn_id' => XenForo_Input::STRING,
-				'mc_currency' => XenForo_Input::STRING,
-				'mc_gross' => XenForo_Input::UNUM,
-				'payment_status' => XenForo_Input::STRING,
-				'custom' => XenForo_Input::STRING,
+			'test_ipn' => XenForo_Input::UINT,
+			'business' => XenForo_Input::STRING,
+			'receiver_email' => XenForo_Input::STRING,
+			'txn_type' => XenForo_Input::STRING,
+			'txn_id' => XenForo_Input::STRING,
+			'parent_txn_id' => XenForo_Input::STRING,
+			'mc_currency' => XenForo_Input::STRING,
+			'mc_gross' => XenForo_Input::UNUM,
+			'payment_status' => XenForo_Input::STRING,
+			'custom' => XenForo_Input::STRING,
 		));
 
 		$transactionId = (!empty($filtered['txn_id']) ? ('paypal_' . $filtered['txn_id']) : '');
@@ -89,9 +90,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			return false;
 		}
 
-		if (strtolower($filtered['business']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount)
-		&& strtolower($filtered['receiver_email']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount)
-		)
+		if (strtolower($filtered['business']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount) && strtolower($filtered['receiver_email']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount))
 		{
 			$this->_setError('Invalid business or receiver_email');
 			return false;
@@ -108,6 +107,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		if ($filtered['payment_status'] == 'Refunded' || $filtered['payment_status'] == 'Reversed')
 		{
 			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
+			$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = $input['parent_txn_id'];
 		}
 
 		return true;
@@ -120,9 +120,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		$this->_assertItem($itemName, $itemId);
 		$this->_assertRecurring($recurringInterval, $recurringUnit);
 
-		$formAction = $this->_sandboxMode()
-		? 'https://www.sandbox.paypal.com/cgi-bin/websrc'
-				: 'https://www.paypal.com/cgi-bin/websrc';
+		$formAction = $this->_sandboxMode() ? 'https://www.sandbox.paypal.com/cgi-bin/websrc' : 'https://www.paypal.com/cgi-bin/websrc';
 		$callToAction = new XenForo_Phrase('bdpaygate_paypal_call_to_action');
 		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
 		$returnUrl = $this->_generateReturnUrl($extraData);
@@ -201,4 +199,5 @@ EOF;
 
 		return $form;
 	}
+
 }
