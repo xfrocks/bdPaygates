@@ -381,6 +381,24 @@ When the payment has been approved, you will be able to download the resource. I
 	</xen:if>
 </xen:if>]]></template>
   </templates>
-  <public_template_modifications/>
+  <public_template_modifications>
+    <modification template="account_upgrades" modification_key="bdpaygate_account_upgrades_forms" description="Replace PayPal form with our forms." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<form action="{\$payPalUrl}" method="post" class="upgradeForm">(.|\r|\n)+</form>#]]></find>
+      <replace><![CDATA[<div class="upgradeForm">
+	<xen:if hascontent="true">
+		<div class="cost">{$upgrade.costPhrase}</div>
+		<xen:contentcheck>
+			<xen:foreach loop="$upgrade.paymentForms" key="$processorId" value="$form">
+				<div id="{$processorId}">{xen:raw $form}</div>
+			</xen:foreach>
+		</xen:contentcheck>
+	</xen:if>
+</div>]]></replace>
+    </modification>
+    <modification template="account_upgrades" modification_key="bdpaygate_account_upgrades_purchased" description="Replace control for purchased upgrades with ours." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<div class="upgradeForm">(.|\r|\n)+)<xen:if is="{\$upgrade.length_unit} AND {\$upgrade.recurring}">(.|\r|\n)+?</xen:if>#]]></find>
+      <replace><![CDATA[$1]]></replace>
+    </modification>
+  </public_template_modifications>
   <bb_code_media_sites/>
 </addon>
