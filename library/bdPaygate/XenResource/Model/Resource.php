@@ -25,54 +25,69 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 
 		if ($canDownload)
 		{
-			// check for purchases
-			$canPurchase = $this->bdPaygate_canPurchaseResource($resource, $category, $null, $viewingUser);
-
-			if ($canPurchase)
+			if ($this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser))
 			{
-				$errorPhraseKey = 'bdpaygate_you_must_purchase_resource_to_download';
-				return false;
+				$purchase = $this->_bdPaygate_getPurchase($resource['resource_id'], $viewingUser['user_id']);
+
+				if (empty($purchase))
+				{
+					$errorPhraseKey = 'bdpaygate_you_must_purchase_resource_to_download';
+					return false;
+				}
 			}
 		}
 
 		return $canDownload;
+	}
+	
+	public function bdPaygate_mustPurchaseToDownload(array $resource, array $viewingUser = null)
+	{
+		$this->standardizeViewingUserReference($viewingUser);
+
+		if (empty($resource['is_fileless']) AND empty($resource['download_url']))
+		{
+			if ($resource['user_id'] != $viewingUser['user_id'])
+			{
+				if (!empty($resource['price']) AND !empty($resource['currency']))
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	public function bdPaygate_canPurchaseResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
 	{
 		$this->standardizeViewingUserReference($viewingUser);
 		
-		if (empty($viewingUser))
+		if (empty($viewingUser['user_id']))
 		{
 			return false;
 		}
 
 		$parentCanDownload = parent::canDownloadResource($resource, $category, $errorPhraseKey, $viewingUser);
 
-		if ($parentCanDownload)
+		if ($parentCanDownload AND $this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser))
 		{
 			if ($resource['user_id'] == $viewingUser['user_id'])
 			{
+				// this may never happen
 				$errorPhraseKey = 'bdpaygate_cannot_purchase_self_resource';
 				return false;
 			}
 
-			if (empty($resource['is_fileless']) AND empty($resource['download_url']))
-			{
-				if (!empty($resource['price']) AND !empty($resource['currency']))
-				{
-					$purchase = $this->_bdPaygate_getPurchase($resource['resource_id'], $viewingUser['user_id']);
+			$purchase = $this->_bdPaygate_getPurchase($resource['resource_id'], $viewingUser['user_id']);
 
-					if (!empty($purchase))
-					{
-						$errorPhraseKey = 'bdpaygate_cannot_repurchase_resource';
-						return false;
-					}
-					else
-					{
-						return true;
-					}
-				}
+			if (!empty($purchase))
+			{
+				$errorPhraseKey = 'bdpaygate_cannot_repurchase_resource';
+				return false;
+			}
+			else
+			{
+				return true;
 			}
 		}
 
@@ -81,15 +96,17 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 
 	protected function _bdPaygate_getPurchase($resourceId, $userId)
 	{
-		if (!isset($this->_purchases[$resourceId]))
+		$hash = sprintf('%d_%d', $resourceId, $userId);
+
+		if (!isset($this->_purchases[$hash]))
 		{
-			$this->_purchases[$resourceId] = $this->_bdPaygate_getPurchaseModel()->getPurchaseByContentAndUser(
+			$this->_purchases[$hash] = $this->_bdPaygate_getPurchaseModel()->getPurchaseByContentAndUser(
 					'resource', $resourceId,
 					$userId
 			);
 		}
 
-		return $this->_purchases[$resourceId];
+		return $this->_purchases[$hash];
 	}
 
 	/**
