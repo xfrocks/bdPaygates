@@ -41,6 +41,11 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 	public function bdPaygate_canPurchaseResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
 	{
 		$this->standardizeViewingUserReference($viewingUser);
+		
+		if (empty($viewingUser))
+		{
+			return false;
+		}
 
 		$parentCanDownload = parent::canDownloadResource($resource, $category, $errorPhraseKey, $viewingUser);
 
