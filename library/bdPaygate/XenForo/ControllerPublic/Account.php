@@ -21,7 +21,7 @@ class bdPaygate_XenForo_ControllerPublic_Account extends XFCP_bdPaygate_XenForo_
 			}
 			$viewParams['processors'] = $processors;
 
-			if (XenForo_Application::$versionId < 1020070)
+			if (XenForo_Application::$versionId < 1020000)
 			{
 				// we are going to switch the template here in order to render
 				// ours instead of the original one. It's expected that doing

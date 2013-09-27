@@ -5,16 +5,16 @@ class bdPaygate_Listener
 	public static function load_class($class, array &$extend)
 	{
 		static $classes = array(
-				'XenForo_ControllerAdmin_Log',
-				'XenForo_ControllerAdmin_UserUpgrade',
-				'XenForo_ControllerPublic_Account',
-				'XenForo_DataWriter_User',
-				'XenForo_Model_Option',
-				'XenForo_ViewPublic_Account_Upgrades',
+			'XenForo_ControllerAdmin_Log',
+			'XenForo_ControllerAdmin_UserUpgrade',
+			'XenForo_ControllerPublic_Account',
+			'XenForo_DataWriter_User',
+			'XenForo_Model_Option',
+			'XenForo_ViewPublic_Account_Upgrades',
 
-				'XenResource_ControllerPublic_Resource',
-				'XenResource_DataWriter_Resource',
-				'XenResource_Model_Resource',
+			'XenResource_ControllerPublic_Resource',
+			'XenResource_DataWriter_Resource',
+			'XenResource_Model_Resource',
 		);
 
 		if (in_array($class, $classes))
@@ -45,8 +45,11 @@ class bdPaygate_Listener
 		switch ($hookName)
 		{
 			case 'resource_view_header_after_resource_buttons':
-				$ourTemplate = $template->create('bdpaygate_resource_view_header', $template->getParams());
-				$contents .= $ourTemplate;
+				if (XenForo_Application::$versionId < 1020000)
+				{
+					$ourTemplate = $template->create('bdpaygate_resource_view_header', $template->getParams());
+					$contents .= $ourTemplate;
+				}
 				break;
 		}
 	}
@@ -97,7 +100,7 @@ class bdPaygate_Listener
 				break;
 		}
 	}
-	
+
 	public static function bdshop_stock_pricing_get_systems(array &$systems)
 	{
 		$systems[] = 'bdPaygate_bdShop_StockPricing';
@@ -107,4 +110,5 @@ class bdPaygate_Listener
 	{
 		$hashes += bdPaygate_FileSums::getHashes();
 	}
+
 }

@@ -399,6 +399,23 @@ When the payment has been approved, you will be able to download the resource. I
       <find><![CDATA[#(<div class="upgradeForm">(.|\r|\n)+)<xen:if is="{\$upgrade.length_unit} AND {\$upgrade.recurring}">(.|\r|\n)+?</xen:if>#]]></find>
       <replace><![CDATA[$1]]></replace>
     </modification>
+    <modification template="resource_view_header" modification_key="bdpaygate_resource_purchase_button" description="Replace download button with purchase button for resource." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li>(<label class="downloadButton {xen:if(.|\r|\n)+?</label>)</li>#]]></find>
+      <replace><![CDATA[<li>
+	<xen:if is="{$resource.canDownload}">
+		$1
+	<xen:elseif is="{$resource.mustPurchaseToDownload} AND {$resource.canPurchase}" />
+		<label class="downloadButton">
+			<a href="{xen:link resources/purchase, $resource}" class="inner OverlayTrigger">
+				{xen:phrase buy_now_for_x, 'cost={$resource.cost}'}
+				<small class="minorText">{xen:number $resource.attachment.file_size, 'size'} .{$resource.attachment.extension}</small>
+			</a>
+		</label>
+	<xen:else />
+		$1
+	</xen:if>
+</li>]]></replace>
+    </modification>
   </public_template_modifications>
   <bb_code_media_sites/>
 </addon>

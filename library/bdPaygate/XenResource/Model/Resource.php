@@ -7,6 +7,8 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 	{
 		$resource = parent::prepareResource($resource, $category, $viewingUser);
 
+		$resource['mustPurchaseToDownload'] = $this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser);
+
 		if ($category)
 		{
 			$resource['canPurchase'] = $this->bdPaygate_canPurchaseResource($resource, $category, $null, $viewingUser);
@@ -39,7 +41,7 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 
 		return $canDownload;
 	}
-	
+
 	public function bdPaygate_mustPurchaseToDownload(array $resource, array $viewingUser = null)
 	{
 		$this->standardizeViewingUserReference($viewingUser);
@@ -54,14 +56,14 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
 	public function bdPaygate_canPurchaseResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
 	{
 		$this->standardizeViewingUserReference($viewingUser);
-		
+
 		if (empty($viewingUser['user_id']))
 		{
 			return false;
@@ -100,10 +102,7 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 
 		if (!isset($this->_purchases[$hash]))
 		{
-			$this->_purchases[$hash] = $this->_bdPaygate_getPurchaseModel()->getPurchaseByContentAndUser(
-					'resource', $resourceId,
-					$userId
-			);
+			$this->_purchases[$hash] = $this->_bdPaygate_getPurchaseModel()->getPurchaseByContentAndUser('resource', $resourceId, $userId);
 		}
 
 		return $this->_purchases[$hash];
@@ -116,4 +115,5 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 	{
 		return $this->getModelFromCache('bdPaygate_Model_Purchase');
 	}
+
 }
