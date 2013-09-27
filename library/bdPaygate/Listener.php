@@ -36,6 +36,7 @@ class bdPaygate_Listener
 				break;
 			case 'resource_view':
 				$template->preloadTemplate('bdpaygate_resource_view_header');
+				$template->preloadTemplate('bdpaygate_resource_view_tabs');
 				break;
 		}
 	}
@@ -50,6 +51,10 @@ class bdPaygate_Listener
 					$ourTemplate = $template->create('bdpaygate_resource_view_header', $template->getParams());
 					$contents .= $ourTemplate;
 				}
+				break;
+			case 'resource_view_tabs':
+				$ourTemplate = $template->create('bdpaygate_resource_view_tabs', $template->getParams());
+				$contents .= $ourTemplate;
 				break;
 		}
 	}

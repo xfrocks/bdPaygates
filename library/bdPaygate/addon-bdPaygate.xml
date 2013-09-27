@@ -191,6 +191,7 @@
   </permissions>
   <phrases>
     <phrase title="admin_navigation_bdPaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Log]]></phrase>
+    <phrase title="bdpaygate_buyers" version_id="19" version_string="1.3.1b"><![CDATA[Buyers]]></phrase>
     <phrase title="bdpaygate_cannot_purchase_self_resource" version_id="9" version_string="1.0.3"><![CDATA[You cannot purchase your own resource.]]></phrase>
     <phrase title="bdpaygate_cannot_repurchase_resource" version_id="9" version_string="1.0.3"><![CDATA[You have purchased this resource already.]]></phrase>
     <phrase title="bdpaygate_failed_transaction_text" version_id="5" version_string="1.0-dev"><![CDATA[The following transaction has encountered problem at {boardTitle}:
@@ -210,6 +211,7 @@ The detail log is available here: {link}]]></phrase>
     <phrase title="bdpaygate_log_result" version_id="2" version_string="0.9-dev"><![CDATA[Result]]></phrase>
     <phrase title="bdpaygate_no_transaction_have_been_logged" version_id="2" version_string="0.9-dev"><![CDATA[No transaction have been logged.]]></phrase>
     <phrase title="bdpaygate_paypal_call_to_action" version_id="1" version_string="0.9-dev"><![CDATA[Pay with PayPal]]></phrase>
+    <phrase title="bdpaygate_purchased" version_id="19" version_string="1.3.1b"><![CDATA[Purchased]]></phrase>
     <phrase title="bdpaygate_purchased_resources" version_id="9" version_string="1.0.3"><![CDATA[Purchased Resources]]></phrase>
     <phrase title="bdpaygate_purchase_resource" version_id="9" version_string="1.0.3"><![CDATA[Purchase Resource]]></phrase>
     <phrase title="bdpaygate_purchase_resource_complete" version_id="9" version_string="1.0.3"><![CDATA[Thank you for purchasing this resource.<br/>
@@ -313,6 +315,17 @@ When the payment has been approved, you will be able to download the resource. I
 		<option value="eur">EUR</option>
 	</select>
 </li>]]></template>
+    <template title="bdpaygate_resource_buyers" version_id="19" version_string="1.3.1b"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_buyers}</xen:title>
+
+<ol class="section memberList">
+	<xen:foreach loop="$buyers" value="$user">
+		<xen:include template="member_list_item">
+			<xen:set var="$extraTemplate">
+				<xen:datetime time="{$user.purchase_date}" class="muted Tooltip" title="{xen:phrase bdpaygate_purchased} ({$user.purchased_amount} {$user.purchased_currency})"/>
+			</xen:set>
+		</xen:include>
+	</xen:foreach>
+</ol>]]></template>
     <template title="bdpaygate_resource_edit" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url})">
 	<xen:require css="bdpaygate.css" />
 
@@ -379,6 +392,11 @@ When the payment has been approved, you will be able to download the resource. I
 			</a>
 		</li>
 	</xen:if>
+</xen:if>]]></template>
+    <template title="bdpaygate_resource_view_tabs" version_id="19" version_string="1.3.1b"><![CDATA[<xen:if is="!{$resource.is_fileless} AND {$resource.cost} AND {$resource.user_id} == {$visitor.user_id}">
+	<li class="resourceTabBuyers {xen:if "{$selectedTab} == 'buyers'", active}">
+		<a href="{xen:link resources/buyers, $resource}">{xen:phrase bdpaygate_buyers}</a>
+	</li>
 </xen:if>]]></template>
   </templates>
   <public_template_modifications>

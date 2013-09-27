@@ -1,11 +1,39 @@
 <?php
 class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_XenResource_ControllerPublic_Resource
 {
+	public function actionBuyers()
+	{
+		list($resource, $category) = $this->_getResourceViewInfo();
+
+		if (empty($resource['is_fileless']) AND !empty($resource['cost']) AND $resource['user_id'] == XenForo_Visitor::getUserId())
+		{
+			// good
+		}
+		else
+		{
+			return $this->responseNoPermission();
+		}
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/buyers', $resource));
+
+		$purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
+		$buyers = $purchaseModel->getUsersWhoPurchased('resource', $resource['resource_id']);
+
+		$viewParams = array(
+			'resource' => $this->_getResourceModel()->prepareResource($resource),
+			'category' => $category,
+
+			'buyers' => $buyers,
+		);
+
+		return $this->_getResourceViewWrapper('buyers', $resource, $category, $this->responseView('bdPaygate_ViewPublic_Resource_Buyers', 'bdpaygate_resource_buyers', $viewParams));
+	}
+
 	public function actionPurchase()
 	{
 		list($resource, $category) = $this->_getResourceViewInfo();
 
-		if (!$this->_getResourceModel()->bdPaygate_canPurchaseResource($resource, $category, $errorPhraseKey))
+		if (!$this->_getResourceModel()->bdPaygate_mustPurchaseToDownload($resource) OR !$this->_getResourceModel()->bdPaygate_canPurchaseResource($resource, $category, $errorPhraseKey))
 		{
 			throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
 		}
@@ -21,24 +49,18 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		}
 
 		$viewParams = array(
-				'resource' => $this->_getResourceModel()->prepareResource($resource),
-				'category' => $category,
+			'resource' => $this->_getResourceModel()->prepareResource($resource),
+			'category' => $category,
 
-				'processors' => $processors,
+			'processors' => $processors,
 		);
 
-		return $this->responseView(
-				'bdPaygate_ViewPublic_Resource_Purchase',
-				'bdpaygate_resource_purchase',
-				$viewParams
-		);
+		return $this->responseView('bdPaygate_ViewPublic_Resource_Purchase', 'bdpaygate_resource_purchase', $viewParams);
 	}
 
 	public function actionPurchaseComplete()
 	{
-		return $this->responseMessage(new XenForo_Phrase('bdpaygate_purchase_resource_complete', array(
-				'purchased_link' => XenForo_Link::buildPublicLink('resources/purchased'),
-		)));
+		return $this->responseMessage(new XenForo_Phrase('bdpaygate_purchase_resource_complete', array('purchased_link' => XenForo_Link::buildPublicLink('resources/purchased'), )));
 	}
 
 	public function actionPurchased()
@@ -49,8 +71,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		$visitor = XenForo_Visitor::getInstance();
 
 		$purchases = $purchaseModel->getPurchases(array(
-				'content_type' => 'resource',
-				'user_id' => $visitor['user_id'],
+			'content_type' => 'resource',
+			'user_id' => $visitor['user_id'],
 		));
 
 		if (empty($purchases))
@@ -65,15 +87,9 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		}
 		$resources = $this->_getResourceModel()->getResourcesByIds($resourceIds);
 
-		$viewParams = array(
-				'resources' => $this->_getResourceModel()->prepareResources($resources),
-		);
+		$viewParams = array('resources' => $this->_getResourceModel()->prepareResources($resources), );
 
-		return $this->responseView(
-				'bdPaygate_ViewPublic_Resource_Purchased',
-				'bdpaygate_resource_purchased',
-				$viewParams
-		);
+		return $this->responseView('bdPaygate_ViewPublic_Resource_Purchased', 'bdpaygate_resource_purchased', $viewParams);
 	}
 
 	public function actionSave()
@@ -86,8 +102,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 	public function bdPaygate_actionSave(XenResource_DataWriter_Resource $dw)
 	{
 		$input = $this->_input->filter(array(
-				'bdpaygate_price' => XenForo_Input::UNUM,
-				'bdpaygate_currency' => XenForo_Input::STRING,
+			'bdpaygate_price' => XenForo_Input::UNUM,
+			'bdpaygate_currency' => XenForo_Input::STRING,
 		));
 
 		$isFileless = $dw->get('is_fileless');
@@ -158,4 +174,5 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 
 		return parent::_checkCsrf($action);
 	}
+
 }
