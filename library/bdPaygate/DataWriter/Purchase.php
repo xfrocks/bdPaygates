@@ -12,8 +12,8 @@ class bdPaygate_DataWriter_Purchase extends XenForo_DataWriter {
 				'content_type' => array('type' => 'string', 'required' => true, 'maxLength' => 25),
 				'content_id' => array('type' => 'uint', 'required' => true),
 				'purchase_date' => array('type' => 'uint', 'required' => true),
-				'purchased_amount' => array('type' => 'string', 'required' => true, 'maxLength' => 10),
-				'purchased_currency' => array('type' => 'string', 'required' => true, 'maxLength' => 3)
+				'purchased_amount' => array('type' => 'string', 'maxLength' => 10),
+				'purchased_currency' => array('type' => 'string', 'maxLength' => 3)
 			)
 		);
 	}

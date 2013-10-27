@@ -29,6 +29,58 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		return $this->_getResourceViewWrapper('buyers', $resource, $category, $this->responseView('bdPaygate_ViewPublic_Resource_Buyers', 'bdpaygate_resource_buyers', $viewParams));
 	}
 
+	public function actionAddBuyer()
+	{
+		list($resource, $category) = $this->_getResourceViewInfo();
+
+		if (empty($resource['is_fileless']) AND !empty($resource['cost']) AND $resource['user_id'] == XenForo_Visitor::getUserId())
+		{
+			// good
+		}
+		else
+		{
+			return $this->responseNoPermission();
+		}
+
+		$this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/add-buyer', $resource));
+
+		if ($this->isConfirmedPost())
+		{
+			$usernames = $this->_input->filterSingle('usernames', XenForo_Input::STRING);
+			$usernames = explode(',', $usernames);
+
+			$purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
+
+			$users = XenForo_Model::create('XenForo_Model_User')->getUsersByNames($usernames);
+
+			if (empty($users))
+			{
+				throw new XenForo_Exception(new XenForo_Phrase('requested_user_not_found'), true);
+			}
+
+			foreach ($users as $user)
+			{
+				$purchased = $purchaseModel->getPurchaseByContentAndUser('resource', $resource['resource_id'], $user['user_id']);
+				
+				if (empty($purchased))
+				{
+					$purchaseModel->createRecord('resource', $resource['resource_id'], $user['user_id']);
+				}
+			}
+
+			return $this->responseRedirect(XenForo_ControllerResponse_Redirect::RESOURCE_UPDATED, XenForo_Link::buildPublicLink('resources/buyers', $resource));
+		}
+		else
+		{
+			$viewParams = array(
+				'resource' => $this->_getResourceModel()->prepareResource($resource),
+				'category' => $category,
+			);
+
+			return $this->_getResourceViewWrapper('buyers', $resource, $category, $this->responseView('bdPaygate_ViewPublic_Resource_AddBuyer', 'bdpaygate_resource_add_buyer', $viewParams));
+		}
+	}
+
 	public function actionPurchase()
 	{
 		list($resource, $category) = $this->_getResourceViewInfo();
