@@ -116,4 +116,23 @@ class bdPaygate_Listener
 		$hashes += bdPaygate_FileSums::getHashes();
 	}
 
+	public static function getXfrmVersionId()
+	{
+		if (XenForo_Application::$versionId > 1020000)
+		{
+			$addOns = XenForo_Application::get('addOns');
+			if (isset($addOns['XenResource']))
+			{
+				return $addOns['XenResource'];
+			}
+		}
+		else
+		{
+			// XenForo is 1.1 or earlier, XFRM cannot reach 1.1
+			return 1009900;
+		}
+
+		return 0;
+	}
+
 }

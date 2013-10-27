@@ -1,5 +1,6 @@
 <?php
-class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Model_Resource
+
+class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResource_Model_Resource
 {
 	protected $_purchases = array();
 
@@ -19,27 +20,6 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 		}
 
 		return $resource;
-	}
-
-	public function canDownloadResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
-	{
-		$canDownload = parent::canDownloadResource($resource, $category, $errorPhraseKey, $viewingUser);
-
-		if ($canDownload)
-		{
-			if ($this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser))
-			{
-				$purchase = $this->_bdPaygate_getPurchase($resource['resource_id'], $viewingUser['user_id']);
-
-				if (empty($purchase))
-				{
-					$errorPhraseKey = 'bdpaygate_you_must_purchase_resource_to_download';
-					return false;
-				}
-			}
-		}
-
-		return $canDownload;
 	}
 
 	public function bdPaygate_mustPurchaseToDownload(array $resource, array $viewingUser = null)
@@ -96,6 +76,25 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 		return false;
 	}
 
+	protected function _bdPaygate_canDownloadResource($canDownload, array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
+	{
+		if ($canDownload)
+		{
+			if ($this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser))
+			{
+				$purchase = $this->_bdPaygate_getPurchase($resource['resource_id'], $viewingUser['user_id']);
+
+				if (empty($purchase))
+				{
+					$errorPhraseKey = 'bdpaygate_you_must_purchase_resource_to_download';
+					return false;
+				}
+			}
+		}
+
+		return $canDownload;
+	}
+
 	protected function _bdPaygate_getPurchase($resourceId, $userId)
 	{
 		$hash = sprintf('%d_%d', $resourceId, $userId);
@@ -114,6 +113,37 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
 	protected function _bdPaygate_getPurchaseModel()
 	{
 		return $this->getModelFromCache('bdPaygate_Model_Purchase');
+	}
+
+}
+
+if (bdPaygate_Listener::getXfrmVersionId() > 1010000)
+{
+	// XFRM 1.1
+	class bdPaygate_XenResource_Model_Resource extends bdPaygate_XenResource_Model_Resource_Base
+	{
+		public function canDownloadResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null, array $categoryPermissions = null)
+		{
+			$canDownload = parent::canDownloadResource($resource, $category, $errorPhraseKey, $viewingUser, $categoryPermissions);
+
+			return $this->_bdPaygate_canDownloadResource($canDownload, $resource, $category, $errorPhraseKey, $viewingUser);
+		}
+
+	}
+
+}
+else
+{
+	// XFRM 1.0
+	class bdPaygate_XenResource_Model_Resource extends bdPaygate_XenResource_Model_Resource_Base
+	{
+		public function canDownloadResource(array $resource, array $category, &$errorPhraseKey = '', array $viewingUser = null)
+		{
+			$canDownload = parent::canDownloadResource($resource, $category, $errorPhraseKey, $viewingUser);
+
+			return $this->_bdPaygate_canDownloadResource($canDownload, $resource, $category, $errorPhraseKey, $viewingUser);
+		}
+
 	}
 
 }
