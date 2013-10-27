@@ -14,7 +14,7 @@ class bdPaygate_ViewPublic_Resource_Purchase extends XenForo_ViewPublic_Base
 					$processors,
 					$resource['price'],
 					$resource['currency'],
-					sprintf('%s: %s', new XenForo_Phrase('bdpaygate_purchase_resource'), $resource['title']),
+					sprintf('%s: %s (%s)', new XenForo_Phrase('bdpaygate_purchase_resource'), $resource['title'], $visitor['username']),
 					$processor->getModelFromCache('bdPaygate_Model_Processor')->generateItemId('resource_purchase', $visitor, array($resource['resource_id'])),
 					false,
 					false,
