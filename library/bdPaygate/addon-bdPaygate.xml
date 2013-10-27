@@ -361,7 +361,7 @@ When the payment has been approved, you will be able to download the resource. I
 		</dl>
 	</xen:foreach>
 </div>]]></template>
-    <template title="bdpaygate_resource_purchased" version_id="9" version_string="1.0.3"><![CDATA[<xen:title>{xen:phrase bdpaygate_purchased_resources}</xen:title>
+    <template title="bdpaygate_resource_purchased" version_id="19" version_string="1.3.1b"><![CDATA[<xen:title>{xen:phrase bdpaygate_purchased_resources}</xen:title>
 
 <xen:require css="resource_list.css" />
 
@@ -370,6 +370,7 @@ When the payment has been approved, you will be able to download the resource. I
 
 		<ol class="resourceList">
 		<xen:foreach loop="$resources" value="$resource">
+			<xen:set var="$resource.cost"></xen:set>
 			<xen:include template="resource_list_item">
 				<xen:set var="$listItemExtraHtml">
 					<a href="{xen:link resources/download, $resource, 'version={$resource.current_version_id}'}">
