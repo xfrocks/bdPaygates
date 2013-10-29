@@ -2,6 +2,17 @@
 
 class bdPaygate_Model_Processor extends XenForo_Model
 {
+	public function getCurrencies()
+	{
+		return array(
+			bdPaygate_Processor_Abstract::CURRENCY_USD => 'USD',
+			bdPaygate_Processor_Abstract::CURRENCY_CAD => 'CAD',
+			bdPaygate_Processor_Abstract::CURRENCY_AUD => 'AUD',
+			bdPaygate_Processor_Abstract::CURRENCY_GBP => 'GBP',
+			bdPaygate_Processor_Abstract::CURRENCY_EUR => 'EUR',
+		);
+	}
+
 	public function getProcessorNames()
 	{
 		return array('paypal' => 'bdPaygate_Processor_PayPal', );
@@ -313,7 +324,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				bdShop_StockPricing_Abstract::TRANSACTION_DATA_AMOUNT => $amount,
 				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $currency,
 			);
-			
+
 			if (!empty($transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID]))
 			{
 				$transaction[bdShop_StockPricing_Abstract::TRANSACTION_DATA_PARENT_ID] = $transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID];

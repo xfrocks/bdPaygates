@@ -227,4 +227,17 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		return parent::_checkCsrf($action);
 	}
 
+	protected function _getResourceAddOrEditResponse(array $resource, array $category, array $attachments = array())
+	{
+		$response = parent::_getResourceAddOrEditResponse($resource, $category, $attachments);
+		
+		if ($response instanceof XenForo_ControllerResponse_View)
+		{
+			$params = &$response->params;
+			
+			$params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getCurrencies();
+		}
+		
+		return $response;
+	}
 }
