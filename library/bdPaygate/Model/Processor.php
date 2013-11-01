@@ -80,7 +80,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 		$logId = $this->_getDb()->lastInsertId();
 
-		if ($logType !== bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED)
+		if ($logType === bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED)
 		{
 			$emailOnFailure = XenForo_Application::getOptions()->get('bdPaygate0_emailOnFailure');
 
