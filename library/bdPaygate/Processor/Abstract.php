@@ -19,7 +19,7 @@ abstract class bdPaygate_Processor_Abstract
 	const PAYMENT_STATUS_REJECTED = 'rejected';
 	const PAYMENT_STATUS_ERROR = 'error';
 	const PAYMENT_STATUS_OTHER = 'other';
-	
+
 	const TRANSACTION_DETAILS_REJECTED_TID = '_rejectedTransactionId';
 
 	protected $_lastError = false;
@@ -53,8 +53,16 @@ abstract class bdPaygate_Processor_Abstract
 	 */
 	public function isCurrencySupported($currency)
 	{
+		$currency = strtolower($currency);
+
+		$enabledCurrencies = $this->getModelFromCache('bdPaygate_Model_Processor')->getEnabledCurrencies();
+		if (empty($enabledCurrencies[$currency]))
+		{
+			return false;
+		}
+
 		$all = $this->getSupportedCurrencies();
-		return in_array(strtolower($currency), $all);
+		return in_array($currency, $all);
 	}
 
 	/**

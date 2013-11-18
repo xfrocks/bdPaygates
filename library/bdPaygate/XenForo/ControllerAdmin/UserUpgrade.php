@@ -16,7 +16,7 @@ class bdPaygate_XenForo_ControllerAdmin_UserUpgrade extends XFCP_bdPaygate_XenFo
 		
 		if ($response instanceof XenForo_ControllerResponse_View)
 		{
-			$response->params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getCurrencies();
+			$response->params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getEnabledCurrencies();
 		}
 		
 		return $response;

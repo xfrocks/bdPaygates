@@ -178,17 +178,26 @@
   </email_templates>
   <email_template_modifications/>
   <optiongroups>
+    <group group_id="bdPaygate" display_order="9999" debug_only="0"/>
     <option option_id="bdPaygate0_emailOnFailure" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
+      <relation group_id="bdPaygate" display_order="1000"/>
       <relation group_id="debug" display_order="210"/>
     </option>
     <option option_id="bdPaygate0_sandboxMode" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
       <default_value></default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
+      <relation group_id="bdPaygate" display_order="1000"/>
       <relation group_id="debug" display_order="210"/>
+    </option>
+    <option option_id="bdPaygate_enabledCurrencies" edit_format="callback" data_type="array" can_backup="1" validation_class="bdPaygate_Option" validation_method="verifyEnabledCurrencies">
+      <default_value></default_value>
+      <edit_format_params>bdPaygate_Option::renderEnabledCurrencies</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bdPaygate" display_order="2000"/>
     </option>
   </optiongroups>
   <permissions>
@@ -233,6 +242,10 @@ When the payment has been approved, you will be able to download the resource. I
     <phrase title="option_bdPaygate0_emailOnFailure_explain" version_id="5" version_string="1.0-dev"><![CDATA[Enter the email address that will receive a notification email if a paygate reports a failed transaction. Leave blank to disable this feature.]]></phrase>
     <phrase title="option_bdPaygate0_sandboxMode" version_id="5" version_string="1.0-dev"><![CDATA[Use Sandbox Mode for Paygates]]></phrase>
     <phrase title="option_bdPaygate0_sandboxMode_explain" version_id="3" version_string="1.0-dev"><![CDATA[Turn on this option to test installed paygates. Most system support sandboxing (test transactions without actually transferring money) but you should always check the document before making a payment to prevent financial loss.]]></phrase>
+    <phrase title="option_bdPaygate_enabledCurrencies" version_id="22" version_string="1.3.3"><![CDATA[Enabled Currencies]]></phrase>
+    <phrase title="option_bdPaygate_enabledCurrencies_explain" version_id="22" version_string="1.3.3"><![CDATA[]]></phrase>
+    <phrase title="option_group_bdPaygate" version_id="22" version_string="1.3.3"><![CDATA[[bd] Paygates]]></phrase>
+    <phrase title="option_group_bdPaygate_description" version_id="22" version_string="1.3.3"><![CDATA[]]></phrase>
   </phrases>
   <route_prefixes/>
   <style_properties/>

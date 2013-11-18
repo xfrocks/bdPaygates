@@ -235,7 +235,7 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		{
 			$params = &$response->params;
 			
-			$params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getCurrencies();
+			$params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getEnabledCurrencies();
 		}
 		
 		return $response;

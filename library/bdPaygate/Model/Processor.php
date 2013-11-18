@@ -13,6 +13,23 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		);
 	}
 
+	public function getEnabledCurrencies()
+	{
+		$currencies = $this->getCurrencies();
+		$optionValue = bdPaygate_Option::get('enabledCurrencies');
+		$enabledCurrencies = array();
+
+		foreach ($currencies as $currencyCode => $currencyName)
+		{
+			if (!isset($optionValue[$currencyCode]) OR !empty($optionValue[$currencyCode]))
+			{
+				$enabledCurrencies[$currencyCode] = $currencyName;
+			}
+		}
+
+		return $enabledCurrencies;
+	}
+
 	public function getProcessorNames()
 	{
 		return array('paypal' => 'bdPaygate_Processor_PayPal');
