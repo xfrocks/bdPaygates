@@ -120,7 +120,14 @@
 	</div>
 </div>]]></template>
   </admin_templates>
-  <admin_template_modifications/>
+  <admin_template_modifications>
+    <modification template="user_upgrade_edit" modification_key="bdpaygate_user_upgrade_edit" description="Replace currency list with ours." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:select name="cost_currency"[^>]+>)(.|\r|\n)+?</xen:select>#]]></find>
+      <replace><![CDATA[$1
+	<xen:options source="$bdPaygate_currencies" />
+</xen:select>]]></replace>
+    </modification>
+  </admin_template_modifications>
   <code_events>
     <event event_id="load_class_bdpaygate_processor"><![CDATA[<p>Called when instantiating a processor. This event can be used to extend the class that will be instantiated dynamically.</p>
 

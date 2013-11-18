@@ -9,7 +9,9 @@ class bdPaygate_Listener
 			'XenForo_ControllerAdmin_UserUpgrade',
 			'XenForo_ControllerPublic_Account',
 			'XenForo_DataWriter_User',
+			'XenForo_DataWriter_UserUpgrade',
 			'XenForo_Model_Option',
+			'XenForo_Model_UserUpgrade',
 			'XenForo_ViewPublic_Account_Upgrades',
 
 			'XenResource_ControllerPublic_Resource',

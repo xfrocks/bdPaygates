@@ -10,6 +10,15 @@ class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResour
 
 		$resource['mustPurchaseToDownload'] = $this->bdPaygate_mustPurchaseToDownload($resource, $viewingUser);
 
+		if ($resource['mustPurchaseToDownload'] AND $resource['currency'])
+		{
+			$currencies = $this->getModelFromCache('bdPaygate_Model_Processor')->getCurrencies();
+			if (!empty($currencies[$resource['currency']]))
+			{
+				$resource['cost'] = XenForo_Locale::numberFormat($resource['price'], 2) . ' ' . $currencies[$resource['currency']];
+			}
+		}
+
 		if ($category)
 		{
 			$resource['canPurchase'] = $this->bdPaygate_canPurchaseResource($resource, $category, $null, $viewingUser);

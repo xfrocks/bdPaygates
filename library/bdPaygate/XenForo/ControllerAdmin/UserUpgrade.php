@@ -9,4 +9,16 @@ class bdPaygate_XenForo_ControllerAdmin_UserUpgrade extends XFCP_bdPaygate_XenFo
 		
 		return parent::actionIndex();
 	}
+	
+	protected function _getUpgradeAddEditResponse(array $upgrade)
+	{
+		$response = parent::_getUpgradeAddEditResponse($upgrade);
+		
+		if ($response instanceof XenForo_ControllerResponse_View)
+		{
+			$response->params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getCurrencies();
+		}
+		
+		return $response;
+	}
 }

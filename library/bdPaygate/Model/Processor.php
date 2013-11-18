@@ -15,7 +15,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 	public function getProcessorNames()
 	{
-		return array('paypal' => 'bdPaygate_Processor_PayPal', );
+		return array('paypal' => 'bdPaygate_Processor_PayPal');
 	}
 
 	public function generateItemId($action, XenForo_Visitor $visitor, array $data)
