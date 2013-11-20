@@ -36,7 +36,13 @@ class bdPaygate_Option
 
 		foreach (array_keys($currencies) as $currency)
 		{
-			if (in_array($currency, $enabledCurrencies))
+			if (!empty($enabledCurrencies['_default']))
+			{
+				// this should only run when the add-on is installed
+				// option default value is `a:1:{s:8:"_default";i:1;}`
+				$value[$currency] = 1;
+			}
+			elseif (in_array($currency, $enabledCurrencies))
 			{
 				$value[$currency] = 1;
 			}
