@@ -7,28 +7,9 @@ class bdPaygate_bdShop_StockPricing extends bdShop_StockPricing_Abstract
 
 	public function getConfiguration()
 	{
-		if (self::$_currencies === false)
-		{
-			self::$_currencies = array();
-			$processorNames = $this->_getProcessorModel()->getProcessorNames();
-
-			foreach ($processorNames as $processorName)
-			{
-				$processor = bdPaygate_Processor_Abstract::create($processorName);
-				if ($processor->isAvailable())
-				{
-					$processorCurrencies = $processor->getSupportedCurrencies();
-					foreach ($processorCurrencies as $currency)
-					{
-						self::$_currencies[utf8_strtolower($currency)] = utf8_strtoupper($currency);
-					}
-				}
-			}
-		}
-
 		return array(
-				'title' => '[bd] Paygate',
-				'currencies' => self::$_currencies
+			'title' => '[bd] Paygate',
+			'currencies' => $this->_getProcessorModel()->getEnabledCurrencies(),
 		);
 	}
 
