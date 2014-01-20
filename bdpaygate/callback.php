@@ -32,14 +32,15 @@ if ($fileDir === false)
 // change directory to mimics the XenForo environment as much as possible
 chdir($fileDir);
 
-require($fileDir . '/library/XenForo/Autoloader.php');
+require ($fileDir . '/library/XenForo/Autoloader.php');
 XenForo_Autoloader::getInstance()->setupAutoloader($fileDir . '/library');
 
 XenForo_Application::initialize($fileDir . '/library', $fileDir);
 XenForo_Application::set('page_start_time', $startTime);
 
 $dependencies = new XenForo_Dependencies_Public();
-$dependencies->preLoadData(); // requires to get registered event listeners
+$dependencies->preLoadData();
+// requires to get registered event listeners
 
 if (!isset($_GET['p']))
 {
@@ -73,7 +74,8 @@ try
 
 	try
 	{
-		// try to use the validateCallback method version 2 with support for amount and currency extraction
+		// try to use the validateCallback method version 2 with support for amount and
+		// currency extraction
 		$validateResult = $processor->validateCallback2($request, $transactionId, $paymentStatus, $logDetails, $itemId, $amount, $currency);
 	}
 	catch (bdPaygate_Exception_NotImplemented $nie)
@@ -107,8 +109,8 @@ try
 	}
 
 	if (in_array($paymentStatus, array(
-			bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED,
-			bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
+		bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED,
+		bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
 	)))
 	{
 		$processor->saveLastTransaction($transactionId, $paymentStatus, $logDetails);

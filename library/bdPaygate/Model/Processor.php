@@ -37,7 +37,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 	public function generateItemId($action, XenForo_Visitor $visitor, array $data)
 	{
-		return strval($action) . '|' . $visitor['user_id'] . '|' . $this->generateHashForItemId($action, $visitor, $data) . (!empty($data) ? ('|' . implode('|', array_map('strval', $data))) : '');
+		$user = $visitor->toArray();
+
+		return strval($action) . '|' . $user['user_id'] . '|' . $this->generateHashForItemId($action, $user, $data) . (!empty($data) ? ('|' . implode('|', array_map('strval', $data))) : '');
 	}
 
 	public function breakdownItemId($itemId, &$action, &$user, &$data)
@@ -78,7 +80,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		return false;
 	}
 
-	public function generateHashForItemId($action, $user, $data)
+	public function generateHashForItemId($action, array $user, array $data)
 	{
 		// this one is needed because some processor doesn't support very long item id
 		return substr(md5($action . $user['csrf_token'] . implode(',', $data)), -5);
@@ -296,7 +298,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			$dataAmount = array_shift($reversed);
 			$dataCurrency = array_shift($reversed);
 
-			if (!$this->_verifyPaymentAmount($processor, $amount, $currency, $dataAmount, $dataCurrency))
+			if ($amount !== false AND $currency !== false AND !$this->_verifyPaymentAmount($processor, $amount, $currency, $dataAmount, $dataCurrency))
 			{
 				return '[ERROR] Invalid payment amount';
 			}
@@ -310,8 +312,8 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			}
 			$transaction = $transaction + array(
 				bdShop_StockPricing_Abstract::TRANSACTION_DATA_ID => $processor->getLastTransactionId(),
-				bdShop_StockPricing_Abstract::TRANSACTION_DATA_AMOUNT => $amount,
-				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $currency,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_AMOUNT => $dataAmount,
+				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $dataCurrency,
 			);
 
 			$processed = $pricingSystemObj->process($data, $transaction);
