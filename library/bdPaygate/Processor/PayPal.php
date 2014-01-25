@@ -4,9 +4,9 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 {
 	public function isAvailable()
 	{
-		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
+		$account = $this->_getAccount();
 
-		return !empty($paypalAccount);
+		return !empty($account);
 	}
 
 	public function getSupportedCurrencies()
@@ -90,7 +90,8 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			return false;
 		}
 
-		if (strtolower($filtered['business']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount) && strtolower($filtered['receiver_email']) != strtolower(XenForo_Application::get('options')->payPalPrimaryAccount))
+		$account = utf8_strtolower($this->_getAccount());
+		if (utf8_strtolower($filtered['business']) != $account AND utf8_strtolower($filtered['receiver_email']) != $account)
 		{
 			$this->_setError('Invalid business or receiver_email');
 			return false;
@@ -107,7 +108,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		if ($filtered['payment_status'] == 'Refunded' || $filtered['payment_status'] == 'Reversed')
 		{
 			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
-			
+
 			if (!empty($filtered['parent_txn_id']))
 			{
 				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = 'paypal_' . $filtered['parent_txn_id'];
@@ -126,7 +127,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 
 		$formAction = $this->_sandboxMode() ? 'https://www.sandbox.paypal.com/cgi-bin/websrc' : 'https://www.paypal.com/cgi-bin/websrc';
 		$callToAction = new XenForo_Phrase('bdpaygate_paypal_call_to_action');
-		$paypalAccount = XenForo_Application::getOptions()->get('payPalPrimaryAccount');
+		$account = $this->_getAccount();
 		$returnUrl = $this->_generateReturnUrl($extraData);
 		$callbackUrl = $this->_generateCallbackUrl($extraData);
 
@@ -160,7 +161,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 
 	<input type="submit" value="{$callToAction}" class="button" />
 
-	<input type="hidden" name="business" value="{$paypalAccount}" />
+	<input type="hidden" name="business" value="{$account}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
 	<input type="hidden" name="item_name" value="$itemName" />
 	<input type="hidden" name="quantity" value="1" />
@@ -185,7 +186,7 @@ EOF;
 
 	<input type="submit" value="{$callToAction}" class="button" />
 
-	<input type="hidden" name="business" value="{$paypalAccount}" />
+	<input type="hidden" name="business" value="{$account}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
 	<input type="hidden" name="item_name" value="$itemName" />
 	<input type="hidden" name="quantity" value="1" />
@@ -202,6 +203,11 @@ EOF;
 		}
 
 		return $form;
+	}
+
+	protected function _getAccount()
+	{
+		return XenForo_Application::getOptions()->get('payPalPrimaryAccount');
 	}
 
 }
