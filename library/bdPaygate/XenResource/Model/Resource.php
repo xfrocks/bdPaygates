@@ -35,6 +35,12 @@ class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResour
 	{
 		$this->standardizeViewingUserReference($viewingUser);
 
+		if (XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPaygate_allPurchases'))
+		{
+			// user has permission to access all purchases
+			return false;
+		}
+
 		if (empty($resource['is_fileless']) AND empty($resource['download_url']))
 		{
 			if ($resource['user_id'] != $viewingUser['user_id'])

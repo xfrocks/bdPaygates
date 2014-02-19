@@ -202,7 +202,9 @@
   </optiongroups>
   <permissions>
     <permission_groups/>
-    <permissions/>
+    <permissions>
+      <permission permission_group_id="general" permission_id="bdPaygate_allPurchases" permission_type="flag" default_value="unset" interface_group_id="generalModeratorPermissions" display_order="9999"/>
+    </permissions>
     <interface_groups/>
   </permissions>
   <phrases>
@@ -249,6 +251,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
     <phrase title="option_bdPaygate_enabledCurrencies_explain" version_id="22" version_string="1.3.3"><![CDATA[]]></phrase>
     <phrase title="option_group_bdPaygate" version_id="22" version_string="1.3.3"><![CDATA[[bd] Paygates]]></phrase>
     <phrase title="option_group_bdPaygate_description" version_id="22" version_string="1.3.3"><![CDATA[]]></phrase>
+    <phrase title="permission_general_bdPaygate_allPurchases" version_id="26" version_string="1.4.2"><![CDATA[[bd] Paygates: Access All Purchases]]></phrase>
   </phrases>
   <route_prefixes/>
   <style_properties/>
