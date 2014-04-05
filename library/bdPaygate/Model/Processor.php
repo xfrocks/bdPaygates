@@ -196,6 +196,23 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		return $message;
 	}
 
+	public function updateSubscriptionForItem($itemId, bdPaygate_Processor_Abstract $processor, $subscriptionId)
+	{
+		$message = '';
+
+		if ($this->breakdownItemId($itemId, $action, $user, $data))
+		{
+			switch ($action)
+			{
+				case 'user_upgrade':
+					$message = $this->_updateSubscriptionForUserUpgrade($user, $data, $processor, $subscriptionId);
+					break;
+			}
+		}
+
+		return $message;
+	}
+
 	protected function _processUserUpgrade($isAccepted, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
 		$upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
@@ -230,7 +247,17 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			}
 
 			$upgradeRecordId = $upgradeModel->upgradeUser($user['user_id'], $upgrade);
-			return 'Upgraded user ' . $user['username'] . ' (upgrade record #' . $upgradeRecordId . ')';
+			$messages = array(sprintf('Upgraded user %s (upgrade record #%d)', $user['username'], $upgradeRecordId));
+
+			$subscriptionId = $processor->getLastSubscriptionId();
+			if (!empty($upgradeRecordId) AND !empty($subscriptionId))
+			{
+				// try to associate user upgrade with a subscription
+				$newUpgradeRecord = $upgradeModel->getActiveUserUpgradeRecordById($upgradeRecordId);
+				$messages[] = $this->_updateSubscriptionForUserUpgradeRecord($newUpgradeRecord, $processor, $subscriptionId);
+			}
+
+			return implode(".\n", $messages);
 		}
 		else
 		{
@@ -239,15 +266,50 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
 			if (!empty($upgradeRecord))
 			{
-				$upgradeModel->downgradeUserUpgrade($this->_upgradeRecord);
+				$upgradeModel->downgradeUserUpgrade($upgradeRecord);
 
-				return 'Downgraded user ' . $user['username'] . ' (upgrade record #' . $upgradeRecord['user_upgrade_record_id'] . ')';
+				return sprintf('Downgraded user %s (upgrade record #%d)', $user['username'], $upgradeRecord['user_upgrade_record_id']);
 			}
 			else
 			{
 				return '[ERROR] Could not find active upgrade record to downgrade';
 			}
 		}
+	}
+
+	protected function _updateSubscriptionForUserUpgrade($user, $data, bdPaygate_Processor_Abstract $processor, $subscriptionId)
+	{
+		$upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
+
+		$upgrade = $upgradeModel->getUserUpgradeById($data[0]);
+		if (empty($upgrade))
+		{
+			return '[ERROR] Could not find specified upgrade';
+		}
+
+		$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
+		if (empty($upgradeRecord))
+		{
+			return 'Could not find active upgrade record';
+		}
+
+		return $this->_updateSubscriptionForUserUpgradeRecord($upgradeRecord, $processor, $subscriptionId);
+	}
+
+	protected function _updateSubscriptionForUserUpgradeRecord($upgradeRecord, bdPaygate_Processor_Abstract $processor, $subscriptionId)
+	{
+		$extra = unserialize($upgradeRecord['extra']);
+		$extra['bdPaygate_processorClass'] = get_class($processor);
+		$extra['bdPaygate_subscriptionId'] = $subscriptionId;
+		$extraSerialized = serialize($extra);
+		if ($extraSerialized == $upgradeRecord['extra'])
+		{
+			return sprintf('Subscription ID is up to date "%s" (upgrade record #%d)', $subscriptionId, $upgradeRecord['user_upgrade_record_id']);
+		}
+
+		$this->_getDb()->update('xf_user_upgrade_active', array('extra' => $extraSerialized), array('user_upgrade_record_id = ?' => $upgradeRecord['user_upgrade_record_id']));
+
+		return sprintf('Updated Subscription ID "%s" (upgrade record #%d)', $subscriptionId, $upgradeRecord['user_upgrade_record_id']);
 	}
 
 	protected function _processResourcePurchase($isAccepted, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)

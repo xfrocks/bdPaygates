@@ -21,11 +21,12 @@ abstract class bdPaygate_Processor_Abstract
 	const PAYMENT_STATUS_OTHER = 'other';
 
 	const TRANSACTION_DETAILS_REJECTED_TID = '_rejectedTransactionId';
+	const TRANSACTION_DETAILS_SUBSCRIPTION_ID = '_subscriptionId';
 
 	protected $_lastError = false;
 	protected $_lastTransactionId = false;
 	protected $_lastPaymentStatus = false;
-	protected $_lastTransactionDetails = false;
+	protected $_lastTransactionDetails = array();
 
 	/**
 	 * Checks whether the processor is available and ready
@@ -166,10 +167,9 @@ abstract class bdPaygate_Processor_Abstract
 	}
 
 	/**
-	 * Returns the latest transaction details processed. If no transaction has been
-	 * processed, this method will return boolean value false.
+	 * Returns the latest transaction details processed.
 	 *
-	 * @return array || bool
+	 * @return array
 	 */
 	public function getLastTransactionDetails()
 	{
@@ -177,10 +177,31 @@ abstract class bdPaygate_Processor_Abstract
 	}
 
 	/**
+	 * Returns the latest subscription id of the most recent transaction. If no
+	 * transaction has been processed or it doesn't carry a subscription id, this
+	 * method will return boolean value false.
+	 *
+	 * @return string || bool
+	 */
+	public function getLastSubscriptionId()
+	{
+		if (empty($this->_lastTransactionDetails[self::TRANSACTION_DETAILS_SUBSCRIPTION_ID]))
+		{
+			return false;
+		}
+
+		return $this->_lastTransactionDetails[self::TRANSACTION_DETAILS_SUBSCRIPTION_ID];
+	}
+
+	/**
 	 * Saves the latest transaction information. This method should only be called by
 	 * callback.php script
+	 *
+	 * @param string $transactionId
+	 * @param string $paymentStatue
+	 * @param array $transactionDetail
 	 */
-	public function saveLastTransaction($transactionId, $paymentStatus, $transactionDetails)
+	public function saveLastTransaction($transactionId, $paymentStatus, array $transactionDetails)
 	{
 		$this->_lastTransactionId = $transactionId;
 		$this->_lastPaymentStatus = $paymentStatus;

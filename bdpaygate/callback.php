@@ -92,6 +92,8 @@ try
 	}
 	else
 	{
+		$processor->saveLastTransaction($transactionId, $paymentStatus, $logDetails);
+
 		if (!empty($transactionId))
 		{
 			$existingTransactions = $processorModel->getModelFromCache('bdPaygate_Model_Log')->getLogs(array('transaction_id' => $transactionId));
@@ -111,10 +113,17 @@ try
 	if (in_array($paymentStatus, array(
 		bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED,
 		bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
-	)))
+	), true))
 	{
-		$processor->saveLastTransaction($transactionId, $paymentStatus, $logDetails);
 		$logMessage = $processor->processTransaction($paymentStatus, $itemId, $amount, $currency);
+	}
+	else
+	{
+		$subscriptionId = $processor->getLastSubscriptionId();
+		if (!empty($subscriptionId))
+		{
+			$logMessage = $processorModel->updateSubscriptionForItem($itemId, $processor, $subscriptionId);
+		}
 	}
 }
 catch (Exception $e)

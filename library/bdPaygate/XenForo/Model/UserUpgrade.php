@@ -23,6 +23,27 @@ class bdPaygate_XenForo_Model_UserUpgrade extends XFCP_bdPaygate_XenForo_Model_U
 			}
 		}
 
+		if (!empty($upgrade['record']['extra']))
+		{
+			// this is an active user upgrade record
+			$extra = unserialize($upgrade['record']['extra']);
+
+			if (!empty($extra['bdPaygate_processorClass']) AND !empty($extra['bdPaygate_subscriptionId']))
+			{
+				// this is a subscription
+				if (is_callable(array(
+					$extra['bdPaygate_processorClass'],
+					'getSubscriptionLink'
+				)))
+				{
+					$upgrade['bdPaygate_subscriptionLink'] = call_user_func(array(
+						$extra['bdPaygate_processorClass'],
+						'getSubscriptionLink'
+					), $extra['bdPaygate_subscriptionId']);
+				}
+			}
+		}
+
 		return $upgrade;
 	}
 

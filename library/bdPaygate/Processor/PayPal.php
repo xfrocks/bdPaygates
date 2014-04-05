@@ -43,6 +43,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			'txn_type' => XenForo_Input::STRING,
 			'txn_id' => XenForo_Input::STRING,
 			'parent_txn_id' => XenForo_Input::STRING,
+			'subscr_id' => XenForo_Input::STRING,
 			'mc_currency' => XenForo_Input::STRING,
 			'mc_gross' => XenForo_Input::UNUM,
 			'payment_status' => XenForo_Input::STRING,
@@ -100,12 +101,18 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 		switch ($filtered['txn_type'])
 		{
 			case 'web_accept':
+				$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED;
+				break;
+			case 'subscr_signup':
+				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_SUBSCRIPTION_ID] = $filtered['subscr_id'];
+				break;
 			case 'subscr_payment':
 				$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED;
+				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_SUBSCRIPTION_ID] = $filtered['subscr_id'];
 				break;
 		}
 
-		if ($filtered['payment_status'] == 'Refunded' || $filtered['payment_status'] == 'Reversed')
+		if ($filtered['payment_status'] == 'Refunded' OR $filtered['payment_status'] == 'Reversed')
 		{
 			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
 
@@ -113,6 +120,10 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			{
 				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = 'paypal_' . $filtered['parent_txn_id'];
 			}
+		}
+		elseif ($filtered['payment_status'] == 'Canceled_Reversal')
+		{
+			// TODO
 		}
 
 		return true;
@@ -208,6 +219,14 @@ EOF;
 	protected function _getAccount()
 	{
 		return XenForo_Application::getOptions()->get('payPalPrimaryAccount');
+	}
+
+	public static function getSubscriptionLink($subscriptionId)
+	{
+		$processor = bdPaygate_Processor_Abstract::create(__CLASS__);
+		$payPalUrl = $processor->_sandboxMode() ? 'https://www.sandbox.paypal.com' : 'https://www.paypal.com';
+
+		return sprintf('%s/customerprofileweb?cmd=_manage-paylist', $payPalUrl);
 	}
 
 }
