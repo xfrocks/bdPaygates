@@ -123,6 +123,14 @@
 </div>]]></template>
   </admin_templates>
   <admin_template_modifications>
+    <modification template="resource_category_edit" modification_key="bdpaygate_resource_category_edit" description="Insert commercial local option." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:option name="allow_local" selected="{$category.allow_local}">{xen:phrase uploaded_file}</xen:option>]]></find>
+      <replace><![CDATA[$0
+
+<xen:option name="bdpaygate_allow_commercial_local" selected="{$category.bdpaygate_allow_commercial_local}">
+	{xen:phrase bdpaygate_commercial_uploaded_file}
+</xen:option>]]></replace>
+    </modification>
     <modification template="user_upgrade_edit" modification_key="bdpaygate_user_upgrade_edit" description="Replace currency list with ours." execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<xen:select name="cost_currency"[^>]+>)(.|\r|\n)+?</xen:select>#]]></find>
       <replace><![CDATA[$1
@@ -158,9 +166,6 @@
     <listener event_id="load_class_datawriter" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
     <listener event_id="load_class_model" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
     <listener event_id="load_class_view" execute_order="10" callback_class="bdPaygate_Listener" callback_method="load_class" active="1" hint="" description=""/>
-    <listener event_id="template_create" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_create" active="1" hint="" description=""/>
-    <listener event_id="template_hook" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_hook" active="1" hint="" description=""/>
-    <listener event_id="template_post_render" execute_order="10" callback_class="bdPaygate_Listener" callback_method="template_post_render" active="1" hint="" description=""/>
   </code_event_listeners>
   <cron/>
   <email_templates>
@@ -215,6 +220,7 @@
     <phrase title="bdpaygate_buyers" version_id="19" version_string="1.3.1b"><![CDATA[Buyers]]></phrase>
     <phrase title="bdpaygate_cannot_purchase_self_resource" version_id="9" version_string="1.0.3"><![CDATA[You cannot purchase your own resource.]]></phrase>
     <phrase title="bdpaygate_cannot_repurchase_resource" version_id="9" version_string="1.0.3"><![CDATA[You have purchased this resource already.]]></phrase>
+    <phrase title="bdpaygate_commercial_uploaded_file" version_id="28" version_string="1.4.4"><![CDATA[Commercial uploaded file]]></phrase>
     <phrase title="bdpaygate_delete_buyer" version_id="26" version_string="1.4.2"><![CDATA[Delete Buyer]]></phrase>
     <phrase title="bdpaygate_delete_buyer_confirm" version_id="26" version_string="1.4.2"><![CDATA[After deletion, user will not be able to download the resource (even the old versions). Are you sure you want to revoke buyer right for {user}?]]></phrase>
     <phrase title="bdpaygate_failed_transaction_text" version_id="5" version_string="1.0-dev"><![CDATA[The following transaction has encountered problem at {boardTitle}:
@@ -243,6 +249,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
     <phrase title="bdpaygate_requested_log_entry_not_found" version_id="2" version_string="0.9-dev"><![CDATA[The requested log entry could not be found.]]></phrase>
     <phrase title="bdpaygate_resource_purchase_explain" version_id="26" version_string="1.4.2"><![CDATA[You are purchasing {resource}. When your payment is confirmed, you will be able to download it. You can find all of your purchased resources in the <a href="{purchased_link}" target="_blank">{purchased_text}</a> page.]]></phrase>
     <phrase title="bdpaygate_subscription" version_id="27" version_string="1.4.3"><![CDATA[Payment Subscription]]></phrase>
+    <phrase title="bdpaygate_this_commercial_upload" version_id="28" version_string="1.4.4"><![CDATA[This is a commercial upload.]]></phrase>
     <phrase title="bdpaygate_you_have_not_purchased_resources" version_id="9" version_string="1.0.3"><![CDATA[You have not purchased any resources.]]></phrase>
     <phrase title="bdpaygate_you_must_purchase_resource_to_download" version_id="9" version_string="1.0.3"><![CDATA[You must purchase the resource in order to download.]]></phrase>
     <phrase title="bdpaytate_sure_you_want_to_clear_log" version_id="2" version_string="0.9-dev"><![CDATA[Are you sure you want to clear the [bd] Paygate log?]]></phrase>
@@ -259,7 +266,13 @@ When the payment is confirmed, you will be able to download the resource. It wil
   <route_prefixes/>
   <style_properties/>
   <templates>
-    <template title="bdpaygate.css" version_id="19" version_string="1.3.1b"><![CDATA[#ctrl_bdpaygate_price
+    <template title="bdpaygate.css" version_id="28" version_string="1.4.4"><![CDATA[#ctrl_bdpaygate_commercial_local_Container,
+#ctrl_bdpaygate_commercial_local_Disabler
+{
+	padding-left: 20px;
+}
+
+#ctrl_bdpaygate_price
 {
 	margin-left: 5px;
 	width: 75px;
@@ -277,58 +290,6 @@ When the payment is confirmed, you will be able to download the resource. It wil
 {
 	text-align: right;
 }]]></template>
-    <template title="bdpaygate_account_upgrades" version_id="27" version_string="1.4.3"><![CDATA[<xen:title>{xen:phrase account_upgrades}</xen:title>
-
-<xen:require css="account_upgrades.css" />
-
-<xen:if is="{$available}">
-	<div class="section">
-		<h3 class="subHeading">{xen:phrase available_upgrades}</h3>
-		<ul>
-		<xen:foreach loop="$available" value="$upgrade">
-			<li class="primaryContent">
-				<div class="upgrade">					
-					<xen:include template="bdpaygate_account_upgrades_form" />
-					
-					<div class="upgradeMain">
-						<h4 class="title">{$upgrade.title}</h4>
-						<xen:if is="{$upgrade.description}">
-							<div class="description">{xen:string nl2br, $upgrade.description}</div>
-						</xen:if>
-					</div>
-				</div>
-			</li>
-		</xen:foreach>
-		</ul>
-	</div>
-</xen:if>
-
-<xen:if is="{$purchased}">
-	<div class="section">
-		<h3 class="subHeading">{xen:phrase purchased_upgrades}</h3>
-		<ul>
-		<xen:foreach loop="$purchased" value="$upgrade">
-			<li class="primaryContent">
-				<div class="upgrade">					
-					<div class="upgradeForm">
-						<xen:if is="{$upgrade.record.end_date}">
-							<div>{xen:phrase expires}: <xen:datetime time="$upgrade.record.end_date" /></div>
-						</xen:if>
-						<xen:include template="bdpaygate_account_upgrades_purchased_link" />
-					</div>
-					
-					<div class="upgradeMain">
-						<h4 class="title">{$upgrade.title}</h4>
-						<xen:if is="{$upgrade.description}">
-							<div class="description">{xen:string nl2br, $upgrade.description}</div>
-						</xen:if>
-					</div>
-				</div>
-			</li>
-		</xen:foreach>
-		</ul>
-	</div>
-</xen:if>]]></template>
     <template title="bdpaygate_account_upgrades_form" version_id="27" version_string="1.4.3"><![CDATA[<div class="upgradeForm">
 	<xen:if hascontent="true">
 		<div class="cost">{$upgrade.costPhrase}</div>
@@ -343,10 +304,20 @@ When the payment is confirmed, you will be able to download the resource. It wil
 	<a href="{xen:raw $upgrade.bdPaygate_subscriptionLink}" class="button">{xen:phrase bdpaygate_subscription}</a>
 </xen:if>]]></template>
     <template title="bdpaygate_resources_tab_links" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="{$visitor.user_id}"><li><a href="{xen:link resources/purchased}">{xen:phrase bdpaygate_purchased_resources}</a></li></xen:if>]]></template>
-    <template title="bdpaygate_resource_add" version_id="25" version_string="1.4.1"><![CDATA[<xen:require css="bdpaygate.css" />
+    <template title="bdpaygate_resource_add" version_id="28" version_string="1.4.4"><![CDATA[<xen:require css="bdpaygate.css" />
 
-<li>
-	<div>
+<xen:if is="{$category.bdpaygate_allow_commercial_local}">
+	<xen:if is="{$category.allow_local}">
+		<li id="ctrl_bdpaygate_commercial_local_Container">
+			<label>
+				<input type="checkbox" class="Disabler Hider" id="ctrl_bdpaygate_commercial_local" />
+				{xen:phrase bdpaygate_this_commercial_upload}
+			</label>
+		</li>
+	</xen:if>
+	<li id="ctrl_bdpaygate_commercial_local_Disabler">
+		<label for="ctrl_bdpaygate_price">{xen:phrase cost}:</label>
+
 		<input type="text" name="bdpaygate_price" id="ctrl_bdpaygate_price" class="textCtrl"
 			placeholder="{xen:phrase price}" />
 
@@ -357,8 +328,11 @@ When the payment is confirmed, you will be able to download the resource. It wil
 				<option value="{$key}">{$value}</option>
 			</xen:foreach>
 		</select>
-	</div>
-</li>]]></template>
+	</li>
+</xen:if>
+
+<xen:edithint template="resource_add" />
+<xen:edithint template="bdpaygate_resource_edit" />]]></template>
     <template title="bdpaygate_resource_add_buyer" version_id="19" version_string="1.3.1b"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_add_buyer}</xen:title>
 
 <form action="{xen:link resources/add-buyer, $resource}" method="post" class="xenForm AutoValidator" data-redirect="yes">
@@ -423,7 +397,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="_xfConfirm" value="1" />
 </form>]]></template>
-    <template title="bdpaygate_resource_edit" version_id="25" version_string="1.4.1"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url})">
+    <template title="bdpaygate_resource_edit" version_id="28" version_string="1.4.4"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url}) AND !empty({$category.bdpaygate_allow_commercial_local})">
 	<xen:require css="bdpaygate.css" />
 
 	<fieldset>
@@ -497,15 +471,6 @@ When the payment is confirmed, you will be able to download the resource. It wil
 		<div class="primaryContent">{xen:phrase you_not_currently_watching_any_resources}</div>
 	</xen:if>
 </div>]]></template>
-    <template title="bdpaygate_resource_view_header" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="{$resource.canPurchase} AND empty({$resource.is_fileless}) AND empty({$resource.download_url})">
-	<xen:if is="!empty({$resource.price}) AND !empty({$resource.currency})">
-		<li>
-			<a href="{xen:link resources/purchase, $resource}" class="OverlayTrigger">
-				{xen:phrase buy_now_for_x, 'cost={$resource.cost}'}
-			</a>
-		</li>
-	</xen:if>
-</xen:if>]]></template>
     <template title="bdpaygate_resource_view_tabs" version_id="19" version_string="1.3.1b"><![CDATA[<xen:if is="!{$resource.is_fileless} AND {$resource.cost} AND {$resource.user_id} == {$visitor.user_id}">
 	<li class="resourceTabBuyers {xen:if "{$selectedTab} == 'buyers'", active}">
 		<a href="{xen:link resources/buyers, $resource}">{xen:phrase bdpaygate_buyers}</a>
@@ -523,6 +488,18 @@ When the payment is confirmed, you will be able to download the resource. It wil
 
 <xen:include template="bdpaygate_account_upgrades_purchased_link" />]]></replace>
     </modification>
+    <modification template="resource_add" modification_key="bdpaygate_resource_add" description="Insert [bd] Paygate controls for adding new resource." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:if is="{\$category.allow_local})(">.+?)(</xen:if>)#s]]></find>
+      <replace><![CDATA[$1 OR {\$category.bdpaygate_allow_commercial_local}$2
+<xen:include template="bdpaygate_resource_add" />
+$3]]></replace>
+    </modification>
+    <modification template="resource_add" modification_key="bdpaygate_resource_edit" description="Insert [bd] Paygates controls for editing resource." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$resource.external_purchase_url}">]]></find>
+      <replace><![CDATA[<xen:include template="bdpaygate_resource_edit" />
+
+$0]]></replace>
+    </modification>
     <modification template="resource_view_header" modification_key="bdpaygate_resource_purchase_button" description="Replace download button with purchase button for resource." execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#<li>(<label class="downloadButton {xen:if(.|\r|\n)+?</label>)</li>#]]></find>
       <replace><![CDATA[<li>
@@ -539,6 +516,18 @@ When the payment is confirmed, you will be able to download the resource. It wil
 		$1
 	</xen:if>
 </li>]]></replace>
+    </modification>
+    <modification template="resource_view_tabs" modification_key="bdpaygate_resource_view_tabs" description="Insert Buyer tab for resource owner." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[</xen:hook>]]></find>
+      <replace><![CDATA[<xen:include template="bdpaygate_resource_view_tabs" />
+
+$0]]></replace>
+    </modification>
+    <modification template="resources_tab_links" modification_key="bdpaygate_resources_tab_links" description="Insert purchased link." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[</ul>]]></find>
+      <replace><![CDATA[<xen:include template="bdpaygate_resources_tab_links" />
+
+$0]]></replace>
     </modification>
   </public_template_modifications>
   <bb_code_media_sites/>

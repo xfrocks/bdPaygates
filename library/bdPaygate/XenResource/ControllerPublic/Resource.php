@@ -1,4 +1,5 @@
 <?php
+
 class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_XenResource_ControllerPublic_Resource
 {
 	public function actionBuyers()
@@ -196,61 +197,18 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		$input = $this->_input->filter(array(
 			'bdpaygate_price' => XenForo_Input::UNUM,
 			'bdpaygate_currency' => XenForo_Input::STRING,
+			'file_hash' => XenForo_Input::STRING,
 		));
 
-		$isFileless = $dw->get('is_fileless');
-		$downloadUrl = $dw->get('download_url');
-		if (empty($isFileless) AND empty($downloadUrl))
+		if (!empty($input['file_hash']))
 		{
-			$existingPrice = $dw->getExisting('price');
-			$existingCurrency = $dw->getExisting('currency');
+			$dw->getVersionDw()->setExtraData(XenResource_DataWriter_Version::DATA_ATTACHMENT_HASH, $input['file_hash']);
+		}
 
-			if (!empty($existingPrice) OR !empty($existingCurrency))
-			{
-				// there is some existing cost
-				if (empty($input['bdpaygate_price']) AND empty($input['bdpaygate_currency']))
-				{
-					// deleted cost
-					$dw->set('price', 0);
-					$dw->set('currency', '');
-				}
-				else
-				{
-					if (empty($input['bdpaygate_price']) OR empty($input['bdpaygate_currency']))
-					{
-						// deleted partial data
-						$dw->error(new XenForo_Phrase('please_complete_required_fields'));
-					}
-					else
-					{
-						// updating cost
-						$dw->set('price', $input['bdpaygate_price']);
-						$dw->set('currency', $input['bdpaygate_currency']);
-					}
-				}
-			}
-			else
-			{
-				// setting new cost?
-				if (empty($input['bdpaygate_price']) AND empty($input['bdpaygate_currency']))
-				{
-					// no new cost
-				}
-				else
-				{
-					if (empty($input['bdpaygate_price']) OR empty($input['bdpaygate_currency']))
-					{
-						// setting new cost but not enough data
-						$dw->error(new XenForo_Phrase('please_complete_required_fields'));
-					}
-					else
-					{
-						// setting new cost!
-						$dw->set('price', $input['bdpaygate_price']);
-						$dw->set('currency', $input['bdpaygate_currency']);
-					}
-				}
-			}
+		if (!empty($input['bdpaygate_price']) OR !empty($input['bdpaygate_currency']))
+		{
+			$dw->set('price', $input['bdpaygate_price']);
+			$dw->set('currency', $input['bdpaygate_currency']);
 		}
 
 		unset($GLOBALS[bdPaygate_Constant::GLOBALS_XFRM_CONTROLLERPUBLIC_RESOURCE_SAVE]);
@@ -274,6 +232,16 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 		if ($response instanceof XenForo_ControllerResponse_View)
 		{
 			$params = &$response->params;
+
+			if (!empty($params['category']['bdpaygate_allow_commercial_local']))
+			{
+				$params['allowLocal'] = true;
+
+				if (empty($params['resource']['resource_id']))
+				{
+					$params['resourceType'] = 'local';
+				}
+			}
 
 			$params['bdPaygate_currencies'] = $this->getModelFromCache('bdPaygate_Model_Processor')->getEnabledCurrencies();
 		}

@@ -20,15 +20,6 @@ class bdPaygate_XenForo_ControllerPublic_Account extends XFCP_bdPaygate_XenForo_
 				$processors[$processorId] = bdPaygate_Processor_Abstract::create($processorClass);
 			}
 			$viewParams['processors'] = $processors;
-
-			if (XenForo_Application::$versionId < 1020000)
-			{
-				// we are going to switch the template here in order to render
-				// ours instead of the original one. It's expected that doing
-				// this will break other paygate add-ons.
-				// XenForo 1.1.x only though...
-				$response->subView->templateName = 'bdpaygate_account_upgrades';
-			}
 		}
 
 		return $response;
