@@ -16,4 +16,14 @@ class bdPaygate_XenResource_ControllerAdmin_Category extends XFCP_bdPaygate_XenR
 		unset($GLOBALS[bdPaygate_Constant::GLOBALS_XFRM_CONTROLLERADMIN_CATEGORY_SAVE]);
 	}
 
+	protected function _getCategoryAddEditResponse(array $category)
+	{
+		if (empty($category['resource_category_id']))
+		{
+			$category['bdpaygate_allow_commercial_local'] = 1;
+		}
+
+		return parent::_getCategoryAddEditResponse($category);
+	}
+
 }
