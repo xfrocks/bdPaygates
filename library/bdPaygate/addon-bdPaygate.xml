@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.4.5" version_id="29" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdPaygate" title="[bd] Paygates" version_string="1.4.5b" version_id="30" url="" install_callback_class="bdPaygate_Installer" install_callback_method="install" uninstall_callback_class="bdPaygate_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bdPaygate_logs" parent_navigation_id="logs" display_order="9999" link="logs/bdpaygate" admin_permission_id="viewLogs" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
@@ -304,7 +304,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
 	<a href="{xen:raw $upgrade.bdPaygate_subscriptionLink}" class="button">{xen:phrase bdpaygate_subscription}</a>
 </xen:if>]]></template>
     <template title="bdpaygate_resources_tab_links" version_id="9" version_string="1.0.3"><![CDATA[<xen:if is="{$visitor.user_id}"><li><a href="{xen:link resources/purchased}">{xen:phrase bdpaygate_purchased_resources}</a></li></xen:if>]]></template>
-    <template title="bdpaygate_resource_add" version_id="28" version_string="1.4.4"><![CDATA[<xen:require css="bdpaygate.css" />
+    <template title="bdpaygate_resource_add" version_id="29" version_string="1.4.5"><![CDATA[<xen:require css="bdpaygate.css" />
 
 <xen:if is="{$category.bdpaygate_allow_commercial_local}">
 	<xen:if is="{$category.allow_local}">
@@ -322,8 +322,6 @@ When the payment is confirmed, you will be able to download the resource. It wil
 			placeholder="{xen:phrase price}" />
 
 		<select name="bdpaygate_currency" class="textCtrl" id="ctrl_bdpaygate_currency">
-			<option value="">&nbsp;</option>
-
 			<xen:foreach loop="$bdPaygate_currencies" key="$key" value="$value">
 				<option value="{$key}">{$value}</option>
 			</xen:foreach>
@@ -397,7 +395,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="_xfConfirm" value="1" />
 </form>]]></template>
-    <template title="bdpaygate_resource_edit" version_id="28" version_string="1.4.4"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url}) AND !empty({$category.bdpaygate_allow_commercial_local})">
+    <template title="bdpaygate_resource_edit" version_id="29" version_string="1.4.5"><![CDATA[<xen:if is="empty({$resource.is_fileless}) AND empty({$resource.download_url}) AND !empty({$category.bdpaygate_allow_commercial_local})">
 	<xen:require css="bdpaygate.css" />
 
 	<fieldset>
@@ -408,7 +406,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
 					class="textCtrl" placeholder="{xen:phrase price}" />
 
 				<select name="bdpaygate_currency" class="textCtrl" id="ctrl_bdpaygate_currency">
-					<option value="">&nbsp;</option>
+					<xen:if is="{$category.allow_local}"><option value="">&nbsp;</option></xen:if>
 
 					<xen:foreach loop="$bdPaygate_currencies" key="$key" value="$value">
 						<option value="{$key}" {xen:selected '{$resource.currency} == "{$key}"'}>{$value}</option>
