@@ -20,8 +20,13 @@ abstract class bdPaygate_Processor_Abstract
 	const PAYMENT_STATUS_ERROR = 'error';
 	const PAYMENT_STATUS_OTHER = 'other';
 
+	// TRANSACTION_DETAILS_REJECTED_TID has been renamed to
+	// TRANSACTION_DETAILS_PARENT_TID but it is kept for compatibility
 	const TRANSACTION_DETAILS_REJECTED_TID = '_rejectedTransactionId';
+	const TRANSACTION_DETAILS_PARENT_TID = '_rejectedTransactionId';
+
 	const TRANSACTION_DETAILS_SUBSCRIPTION_ID = '_subscriptionId';
+	const TRANSACTION_DETAILS_CALLBACK_IP = '_callbackIp';
 
 	protected $_lastError = false;
 	protected $_lastTransactionId = false;
@@ -191,6 +196,23 @@ abstract class bdPaygate_Processor_Abstract
 		}
 
 		return $this->_lastTransactionDetails[self::TRANSACTION_DETAILS_SUBSCRIPTION_ID];
+	}
+
+	/**
+	 * Returns the latest parent id of the most recent transaction. If no
+	 * transaction has been processed or it doesn't have a parent, this
+	 * method will return boolean value false.
+	 *
+	 * @return string || bool
+	 */
+	public function getLastParentTransactionId()
+	{
+		if (empty($this->_lastTransactionDetails[self::TRANSACTION_DETAILS_PARENT_TID]))
+		{
+			return false;
+		}
+
+		return $this->_lastTransactionDetails[self::TRANSACTION_DETAILS_PARENT_TID];
 	}
 
 	/**

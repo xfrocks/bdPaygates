@@ -223,22 +223,50 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			return '[ERROR] Could not find specified upgrade';
 		}
 
+		$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
+
+		if (!$upgradeRecord AND $processor->getLastSubscriptionId())
+		{
+			$parentLogs = $upgradeModel->getLogsBySubscriberId($processor->getLastSubscriptionId());
+			foreach (array_reverse($parentLogs) AS $parentLog)
+			{
+				if ($parentLog['user_upgrade_record_id'])
+				{
+					$upgradeRecord = $upgradeModel->getExpiredUserUpgradeRecordById($parentLog['user_upgrade_record_id']);
+					if ($upgradeRecord)
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		if (!$upgradeRecord AND $processor->getLastParentTransactionId())
+		{
+			$parentLogs = $upgradeModel->getLogsByTransactionId($processor->getLastParentTransactionId());
+			foreach (array_reverse($parentLogs) AS $parentLog)
+			{
+				if ($parentLog['user_upgrade_record_id'])
+				{
+					$upgradeRecord = $upgradeModel->getExpiredUserUpgradeRecordById($parentLog['user_upgrade_record_id']);
+					if ($upgradeRecord)
+					{
+						break;
+					}
+				}
+			}
+		}
+
 		if ($isAccepted)
 		{
-			if ($amount !== false AND $currency !== false)
+			$messages = array();
+
+			if ($amount !== false AND $currency !== false AND $upgradeRecord)
 			{
-				$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
-				if ($upgradeRecord)
-				{
-					$extra = unserialize($upgradeRecord['extra']);
-					$upgradeCost = $extra['cost_amount'];
-					$upgradeCurrency = $extra['cost_currency'];
-				}
-				else
-				{
-					$upgradeCost = $upgrade['cost_amount'];
-					$upgradeCurrency = $upgrade['cost_currency'];
-				}
+				// only verify payment amount if an existing upgrade can be found
+				$extra = unserialize($upgradeRecord['extra']);
+				$upgradeCost = $extra['cost_amount'];
+				$upgradeCurrency = $extra['cost_currency'];
 
 				if (!$this->_verifyPaymentAmount($processor, $amount, $currency, $upgradeCost, $upgradeCurrency))
 				{
@@ -246,8 +274,18 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				}
 			}
 
-			$upgradeRecordId = $upgradeModel->upgradeUser($user['user_id'], $upgrade);
-			$messages = array(sprintf('Upgraded user %s (upgrade record #%d)', $user['username'], $upgradeRecordId));
+			if ($processor->getLastParentTransactionId() AND $upgradeRecord)
+			{
+				// for PayPal, this is a Canceled_Reversal transaction
+				$endDate = isset($upgradeRecord['original_end_date']) ? $upgradeRecord['original_end_date'] : $upgradeRecord['end_date'];
+				$upgradeRecordId = $upgradeModel->upgradeUser($user['user_id'], $upgrade, true, $endDate);
+				$messages[] = sprintf('Restored user upgrade for user %s (end date %s, upgrade record #%d)', $user['username'], $endDate, $upgradeRecordId);
+			}
+			else
+			{
+				$upgradeRecordId = $upgradeModel->upgradeUser($user['user_id'], $upgrade);
+				$messages[] = sprintf('Upgraded user %s (upgrade record #%d)', $user['username'], $upgradeRecordId);
+			}
 
 			$subscriptionId = $processor->getLastSubscriptionId();
 			if (!empty($upgradeRecordId) AND !empty($subscriptionId))
@@ -257,13 +295,25 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				$messages[] = $this->_updateSubscriptionForUserUpgradeRecord($newUpgradeRecord, $processor, $subscriptionId);
 			}
 
-			return implode(".\n", $messages);
+			$messages = implode(".\n", $messages);
+
+			call_user_func_array(array(
+				$upgradeModel,
+				'logProcessorCallback'
+			), array(
+				$upgradeRecordId,
+				'bdpaygate',
+				$processor->getLastTransactionId(),
+				'payment',
+				$messages,
+				$processor->getLastTransactionDetails(),
+				$processor->getLastSubscriptionId()
+			));
+
+			return $messages;
 		}
 		else
 		{
-			// TODO: verify payment amount?
-
-			$upgradeRecord = $upgradeModel->getActiveUserUpgradeRecord($user['user_id'], $upgrade['user_upgrade_id']);
 			if (!empty($upgradeRecord))
 			{
 				$upgradeModel->downgradeUserUpgrade($upgradeRecord);
@@ -406,9 +456,9 @@ class bdPaygate_Model_Processor extends XenForo_Model
 				bdShop_StockPricing_Abstract::TRANSACTION_DATA_CURRENCY => $currency,
 			);
 
-			if (!empty($transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID]))
+			if (!empty($transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_PARENT_TID]))
 			{
-				$transaction[bdShop_StockPricing_Abstract::TRANSACTION_DATA_PARENT_ID] = $transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID];
+				$transaction[bdShop_StockPricing_Abstract::TRANSACTION_DATA_PARENT_ID] = $transaction[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_PARENT_TID];
 			}
 
 			$processed = $pricingSystemObj->revert($data, $transaction);

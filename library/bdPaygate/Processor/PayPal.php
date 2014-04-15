@@ -133,12 +133,17 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 
 			if (!empty($filtered['parent_txn_id']))
 			{
-				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_REJECTED_TID] = 'paypal_' . $filtered['parent_txn_id'];
+				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_PARENT_TID] = 'paypal_' . $filtered['parent_txn_id'];
 			}
 		}
 		elseif ($filtered['payment_status'] == 'Canceled_Reversal')
 		{
-			// TODO
+			$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED;
+
+			if (!empty($filtered['parent_txn_id']))
+			{
+				$transactionDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_PARENT_TID] = 'paypal_' . $filtered['parent_txn_id'];
+			}
 		}
 
 		return true;

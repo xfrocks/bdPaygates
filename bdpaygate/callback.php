@@ -83,6 +83,8 @@ try
 		$validateResult = $processor->validateCallback($request, $transactionId, $paymentStatus, $logDetails, $itemId);
 	}
 
+	$logDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_CALLBACK_IP] = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false);
+
 	if (!$validateResult)
 	{
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
