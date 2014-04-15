@@ -91,8 +91,23 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 			return false;
 		}
 
-		$account = utf8_strtolower($this->_getAccount());
-		if (utf8_strtolower($filtered['business']) != $account AND utf8_strtolower($filtered['receiver_email']) != $account)
+		$accounts = preg_split('#\r?\n#', utf8_strtolower($this->_getAccount()), -1, PREG_SPLIT_NO_EMPTY);
+		$filteredBusiness = utf8_strtolower($filtered['business']);
+		$filteredReceiverEmail = utf8_strtolower($filtered['receiver_email']);
+		$accountFound = false;
+		$addressMatched = false;
+		foreach ($accounts as $account)
+		{
+			if (!empty($account))
+			{
+				$accountFound = true;
+				if ($filteredBusiness === $account OR $filteredReceiverEmail === $account)
+				{
+					$addressMatched = true;
+				}
+			}
+		}
+		if ($accountFound AND !$addressMatched)
 		{
 			$this->_setError('Invalid business or receiver_email');
 			return false;
@@ -218,7 +233,16 @@ EOF;
 
 	protected function _getAccount()
 	{
-		return XenForo_Application::getOptions()->get('payPalPrimaryAccount');
+		$options = XenForo_Application::getOptions();
+		$account = $options->get('payPalPrimaryAccount');
+
+		if (XenForo_Application::$versionId >= 1030100)
+		{
+			// XenForo 1.3.1 added new option for alternative addresses
+			$account .= "\n" . $options->get('payPalAlternateAccounts');
+		}
+
+		return $account;
 	}
 
 	public static function getSubscriptionLink($subscriptionId)
