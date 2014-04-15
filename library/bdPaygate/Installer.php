@@ -36,16 +36,14 @@ class bdPaygate_Installer
 			'dropQuery' => 'DROP TABLE IF EXISTS `xf_bdpaygate_purchase`',
 		),
 	);
-	protected static $_patches = array(
-		array(
+	protected static $_patches = array( array(
 			'table' => 'xf_resource_category',
 			'field' => 'bdpaygate_allow_commercial_local',
 			'showTablesQuery' => 'SHOW TABLES LIKE \'xf_resource_category\'',
 			'showColumnsQuery' => 'SHOW COLUMNS FROM `xf_resource_category` LIKE \'bdpaygate_allow_commercial_local\'',
 			'alterTableAddColumnQuery' => 'ALTER TABLE `xf_resource_category` ADD COLUMN `bdpaygate_allow_commercial_local` INT(10) UNSIGNED NOT NULL DEFAULT \'0\'',
 			'alterTableDropColumnQuery' => 'ALTER TABLE `xf_resource_category` DROP COLUMN `bdpaygate_allow_commercial_local`',
-		),
-	);
+		), );
 
 	public static function install($existingAddOn, $addOnData)
 	{
@@ -70,7 +68,7 @@ class bdPaygate_Installer
 				$db->query($patch['alterTableAddColumnQuery']);
 			}
 		}
-		
+
 		self::installCustomized($existingAddOn, $addOnData);
 	}
 
@@ -118,7 +116,10 @@ class bdPaygate_Installer
 
 		if ($effectiveVersionId < 29)
 		{
-			XenForo_Application::getDb()->query('UPDATE xf_resource_category SET bdpaygate_allow_commercial_local = allow_local;');
+			if (XenForo_Application::getDb()->fetchOne('SHOW TABLES LIKE \'xf_resource_category\''))
+			{
+				XenForo_Application::getDb()->query('UPDATE xf_resource_category SET bdpaygate_allow_commercial_local = allow_local;');
+			}
 		}
 	}
 
