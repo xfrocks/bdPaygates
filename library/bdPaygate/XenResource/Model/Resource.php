@@ -35,7 +35,7 @@ class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResour
 	{
 		$this->standardizeViewingUserReference($viewingUser);
 
-		if (XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPaygate_allPurchases'))
+		if (!empty($viewingUser['permissions']) AND XenForo_Permission::hasPermission($viewingUser['permissions'], 'general', 'bdPaygate_allPurchases'))
 		{
 			// user has permission to access all purchases
 			return false;
@@ -112,6 +112,11 @@ class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResour
 
 	protected function _bdPaygate_getPurchase($resourceId, $userId)
 	{
+		if (empty($resourceId) OR empty($userId))
+		{
+			return false;
+		}
+
 		$hash = sprintf('%d_%d', $resourceId, $userId);
 
 		if (!isset($this->_purchases[$hash]))

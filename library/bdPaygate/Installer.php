@@ -121,6 +121,17 @@ class bdPaygate_Installer
 				XenForo_Application::getDb()->query('UPDATE xf_resource_category SET bdpaygate_allow_commercial_local = allow_local;');
 			}
 		}
+
+		if ($effectiveVersionId < 32)
+		{
+			XenForo_Application::getDb()->query("
+				INSERT IGNORE INTO xf_permission_entry
+					(user_group_id, user_id, permission_group_id, permission_id, permission_value, permission_value_int)
+				SELECT user_group_id, user_id, 'forum', 'bdPaygate_allThreads', permission_value, 0
+				FROM xf_permission_entry
+				WHERE permission_group_id = 'forum' AND permission_id = 'warn'
+			");
+		}
 	}
 
 	private static function uninstallCustomized()

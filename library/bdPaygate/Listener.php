@@ -11,6 +11,7 @@ class bdPaygate_Listener
 			'XenForo_DataWriter_AddOn',
 			'XenForo_DataWriter_User',
 			'XenForo_DataWriter_UserUpgrade',
+			'XenForo_Model_Thread',
 			'XenForo_Model_Option',
 			'XenForo_Model_UserUpgrade',
 			'XenForo_ViewPublic_Account_Upgrades',
