@@ -137,7 +137,7 @@ class bdPaygate_XenResource_Model_Resource_Base extends XFCP_bdPaygate_XenResour
 
 }
 
-if (bdPaygate_Listener::getXfrmVersionId() > 1010000)
+if (bdPaygate_Listener::getXfrmVersionId() >= 1010000)
 {
 	// XFRM 1.1
 	class bdPaygate_XenResource_Model_Resource extends bdPaygate_XenResource_Model_Resource_Base

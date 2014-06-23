@@ -32,6 +32,11 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
 
 	protected function _bdPaygate_getResourceByThreadId($threadId)
 	{
+		if (bdPaygate_Listener::getXfrmVersionId() == 0)
+		{
+			return false;
+		}
+
 		static $resources = array();
 
 		if (!isset($resources[$threadId]))
