@@ -261,12 +261,21 @@ class bdPaygate_Model_Processor extends XenForo_Model
 		{
 			$messages = array();
 
-			if ($amount !== false AND $currency !== false AND $upgradeRecord)
+			if ($amount !== false AND $currency !== false)
 			{
-				// only verify payment amount if an existing upgrade can be found
-				$extra = unserialize($upgradeRecord['extra']);
-				$upgradeCost = $extra['cost_amount'];
-				$upgradeCurrency = $extra['cost_currency'];
+				if ($upgradeRecord)
+				{
+					//  verify payment amount with an existing upgrade record
+					$extra = unserialize($upgradeRecord['extra']);
+					$upgradeCost = $extra['cost_amount'];
+					$upgradeCurrency = $extra['cost_currency'];
+				}
+				else
+				{
+					// verify payment amount with the upgrade itself
+					$upgradeCost = $upgrade['cost_amount'];
+					$upgradeCurrency = $upgrade['cost_currency'];
+				}
 
 				if (!$this->_verifyPaymentAmount($processor, $amount, $currency, $upgradeCost, $upgradeCurrency))
 				{
