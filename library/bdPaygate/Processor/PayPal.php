@@ -158,7 +158,10 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 
 		$formAction = $this->_sandboxMode() ? 'https://www.sandbox.paypal.com/cgi-bin/websrc' : 'https://www.paypal.com/cgi-bin/websrc';
 		$callToAction = new XenForo_Phrase('bdpaygate_paypal_call_to_action');
-		$account = $this->_getAccount();
+
+		$accounts = preg_split('#\r?\n#', utf8_strtolower($this->_getAccount()), -1, PREG_SPLIT_NO_EMPTY);
+		$account = reset($accounts);
+
 		$returnUrl = $this->_generateReturnUrl($extraData);
 		$callbackUrl = $this->_generateCallbackUrl($extraData);
 
@@ -241,10 +244,14 @@ EOF;
 		$options = XenForo_Application::getOptions();
 		$account = $options->get('payPalPrimaryAccount');
 
-		if (XenForo_Application::$versionId >= 1030100)
+		if (!empty($account) AND XenForo_Application::$versionId >= 1030100)
 		{
 			// XenForo 1.3.1 added new option for alternative addresses
-			$account .= "\n" . $options->get('payPalAlternateAccounts');
+			$alternateAccounts = trim($options->get('payPalAlternateAccounts'));
+			if (!empty($alternateAccounts))
+			{
+				$account .= "\n" . $alternateAccounts;
+			}
 		}
 
 		return $account;
