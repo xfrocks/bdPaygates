@@ -126,10 +126,16 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 	{
 		list($resource, $category) = $this->_getResourceViewInfo();
 
-		if (!$this->_getResourceModel()->bdPaygate_mustPurchaseToDownload($resource) OR !$this->_getResourceModel()->bdPaygate_canPurchaseResource($resource, $category, $errorPhraseKey))
+        /** @var bdPaygate_XenResource_Model_Resource_Base $resourceModel */
+        $resourceModel = $this->_getResourceModel();
+		if (!$resourceModel->bdPaygate_mustPurchaseToDownload($resource))
 		{
-			throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
+			return $this->responseNoPermission();
 		}
+        if (!$resourceModel->bdPaygate_canPurchaseResource($resource, $category, $errorPhraseKey))
+        {
+            throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
+        }
 
 		/* @var $processorModel bdPaygate_Model_Processor */
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
