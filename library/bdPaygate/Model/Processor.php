@@ -506,14 +506,21 @@ class bdPaygate_Model_Processor extends XenForo_Model
 			return false;
 		}
 
-		$valueActual = sprintf('%0.10f', floatval($actualAmount));
-		$valueExpect = sprintf('%0.10f', floatval($expectAmount));
-		if ($valueActual !== $valueExpect)
-		{
-			return false;
-		}
+        if ($actualAmount > $expectAmount)
+        {
+            // user sends more money than expected? Good.
+            return true;
+        }
+        else
+        {
+            $valueActual = sprintf('%0.10f', floatval($actualAmount));
+            $valueExpect = sprintf('%0.10f', floatval($expectAmount));
+            if ($valueActual !== $valueExpect) {
+                return false;
+            }
 
-		return true;
+            return true;
+        }
 	}
 
 }
