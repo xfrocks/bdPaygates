@@ -96,7 +96,7 @@ try
 	{
 		$processor->saveLastTransaction($transactionId, $paymentStatus, $logDetails);
 
-		if (!empty($transactionId))
+		if (!empty($transactionId) && $paymentStatus !== bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER)
 		{
 			$existingTransactions = $processorModel->getModelFromCache('bdPaygate_Model_Log')->getLogs(array('transaction_id' => $transactionId));
 			foreach ($existingTransactions as $existingTransaction)
