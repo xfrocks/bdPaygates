@@ -2,11 +2,11 @@
 
 class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
 {
-	public function canViewThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
+	public function canReplyToThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
 	{
-		$canView = parent::canViewThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
+		$canReplyToThread = parent::canReplyToThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
 
-		if ($canView AND !empty($thread['discussion_type']) AND $thread['discussion_type'] === 'resource')
+		if ($canReplyToThread AND !empty($thread['discussion_type']) AND $thread['discussion_type'] === 'resource')
 		{
 			// check for resource permission
 			$resource = $this->_bdPaygate_getResourceByThreadId($thread['thread_id']);
@@ -27,7 +27,7 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
 			}
 		}
 
-		return $canView;
+		return $canReplyToThread;
 	}
 
 	protected function _bdPaygate_getResourceByThreadId($threadId)
