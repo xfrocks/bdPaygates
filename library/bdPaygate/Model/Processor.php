@@ -215,6 +215,7 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 	protected function _processUserUpgrade($isAccepted, $user, $data, bdPaygate_Processor_Abstract $processor, $amount, $currency)
 	{
+        /** @var XenForo_Model_UserUpgrade $upgradeModel */
 		$upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
 
 		$upgrade = $upgradeModel->getUserUpgradeById($data[0]);
@@ -306,18 +307,15 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
 			$messages = implode(".\n", $messages);
 
-			call_user_func_array(array(
-				$upgradeModel,
-				'logProcessorCallback'
-			), array(
-				$upgradeRecordId,
-				'bdpaygate',
-				$processor->getLastTransactionId(),
-				'payment',
-				$messages,
-				$processor->getLastTransactionDetails(),
-				$processor->getLastSubscriptionId()
-			));
+            $upgradeModel->logProcessorCallback(
+                intval($upgradeRecordId),
+                'bdpaygate',
+                $processor->getLastTransactionId(),
+                'payment',
+                $messages,
+                $processor->getLastTransactionDetails(),
+                $processor->getLastSubscriptionId()
+            );
 
 			return $messages;
 		}
