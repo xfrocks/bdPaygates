@@ -101,6 +101,13 @@ class bdPaygate_Installer
             throw new XenForo_Exception('[bd] Paygates requires XenForo 1.2.0+');
         }
 
+        $addOns = XenForo_Application::get('addOns');
+        if (isset($addOns['XenResource'])
+            && $addOns['XenResource'] < 1010000
+        ) {
+            throw new XenForo_Exception('[bd] Paygates requires XenForo Resource Manager v1.1.0+');
+        }
+
         $effectiveVersionId = 0;
         if (!empty($existingAddOn['version_id'])) {
             $effectiveVersionId = $existingAddOn['version_id'];

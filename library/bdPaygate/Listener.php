@@ -44,14 +44,4 @@ class bdPaygate_Listener
         $hashes += bdPaygate_FileSums::getHashes();
     }
 
-    public static function getXfrmVersionId()
-    {
-        $addOns = XenForo_Application::get('addOns');
-        if (isset($addOns['XenResource'])) {
-            return $addOns['XenResource'];
-        }
-
-        return 0;
-    }
-
 }

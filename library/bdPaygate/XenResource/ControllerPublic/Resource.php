@@ -126,7 +126,7 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
     {
         list($resource, $category) = $this->_getResourceViewInfo();
 
-        /** @var bdPaygate_XenResource_Model_Resource_Base $resourceModel */
+        /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
         $resourceModel = $this->_getResourceModel();
         if (!$resourceModel->bdPaygate_mustPurchaseToDownload($resource)) {
             return $this->responseNoPermission();
