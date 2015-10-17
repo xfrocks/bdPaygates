@@ -28,6 +28,24 @@ class bdPaygate_Model_Processor extends XenForo_Model
         return $enabledCurrencies;
     }
 
+    public function formatCost($amount, $currency)
+    {
+        $currencies = $this->getCurrencies();
+        if (!isset($currencies[$currency])) {
+            return '';
+        }
+
+        return sprintf('%s %s', $this->formatAmount($amount, $currency), $currencies[$currency]);
+    }
+
+    public function formatAmount(
+        $amount,
+        /** @noinspection PhpUnusedParameterInspection */
+        $currency)
+    {
+        return XenForo_Locale::numberFormat($amount, 2);
+    }
+
     public function getProcessorNames()
     {
         return array('paypal' => 'bdPaygate_Processor_PayPal');

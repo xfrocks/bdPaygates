@@ -8,12 +8,8 @@ class bdPaygate_XenForo_Model_UserUpgrade extends XFCP_bdPaygate_XenForo_Model_U
 
         /** @var bdPaygate_Model_Processor $processorModel */
         $processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
-        $currencies = $processorModel->getCurrencies();
-        if (!empty($currencies[$upgrade['cost_currency']])) {
-            $currencyName = $currencies[$upgrade['cost_currency']];
-
-            $cost = "$upgrade[cost_amount] $currencyName";
-
+        $cost = $processorModel->formatCost($upgrade['cost_amount'], $upgrade['cost_currency']);
+        if ($cost !== '') {
             if ($upgrade['costPhrase'] instanceof XenForo_Phrase) {
                 $upgrade['costPhrase']->setParams(array('cost' => $cost));
             } else {

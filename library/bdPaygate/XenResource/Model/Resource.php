@@ -15,10 +15,9 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
         ) {
             /** @var bdPaygate_Model_Processor $processorModel */
             $processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
-            $currencies = $processorModel->getCurrencies();
-            if (!empty($currencies[$resource['currency']])) {
-                $resource['cost'] = XenForo_Locale::numberFormat($resource['price'], 2)
-                    . ' ' . $currencies[$resource['currency']];
+            $cost = $processorModel->formatCost($resource['price'], $resource['currency']);
+            if ($cost !== '') {
+                $resource['cost'] = $cost;
             }
         }
 
