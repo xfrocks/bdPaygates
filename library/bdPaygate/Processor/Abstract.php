@@ -83,10 +83,10 @@ abstract class bdPaygate_Processor_Abstract
 	 * THIS METHOD HAS BEEN DEPRECATED, please implement validateCallback2
 	 *
 	 * @param Zend_Controller_Request_Http $request
-	 * @param out $transactionId
-	 * @param out $paymentStatus
-	 * @param out $transactionDetails
-	 * @param out $itemId
+	 * @param string $transactionId
+	 * @param string $paymentStatus
+	 * @param string $transactionDetails
+	 * @param string $itemId
 	 *
 	 * @return bool
 	 */
@@ -99,12 +99,12 @@ abstract class bdPaygate_Processor_Abstract
 	 * type of malicious activities.
 	 *
 	 * @param Zend_Controller_Request_Http $request
-	 * @param out $transactionId
-	 * @param out $paymentStatus
-	 * @param out $transactionDetails
-	 * @param out $itemId
-	 * @param out $amount
-	 * @param out $currency
+	 * @param string $transactionId
+	 * @param string $paymentStatus
+	 * @param string $transactionDetails
+	 * @param string $itemId
+	 * @param string $amount
+	 * @param string $currency
 	 *
 	 * @return bool
 	 */

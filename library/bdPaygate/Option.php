@@ -2,6 +2,8 @@
 
 class bdPaygate_Option
 {
+	const UPDATER_URL = 'https://xfrocks.com/api/index.php?updater';
+
 	public static function get($key, $subKey = null)
 	{
 		$options = XenForo_Application::getOptions();

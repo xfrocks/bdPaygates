@@ -30,6 +30,11 @@ class bdPaygate_Listener
 		}
 	}
 
+    public static function init_dependencies(XenForo_Dependencies_Abstract $dependencies, array $data)
+    {
+        bdPaygate_ShippableHelper_Updater::onInitDependencies($dependencies, bdPaygate_Option::UPDATER_URL);
+    }
+
 	public static function bdshop_stock_pricing_get_systems(array &$systems)
 	{
 		$systems[] = 'bdPaygate_bdShop_StockPricing';
