@@ -98,7 +98,9 @@ try
 
 		if (!empty($transactionId) && $paymentStatus !== bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER)
 		{
-			$existingTransactions = $processorModel->getModelFromCache('bdPaygate_Model_Log')->getLogs(array('transaction_id' => $transactionId));
+			/** @var bdPaygate_Model_Log $logModel */
+			$logModel = $processorModel->getModelFromCache('bdPaygate_Model_Log');
+			$existingTransactions = $logModel->getLogs(array('transaction_id' => $transactionId));
 			foreach ($existingTransactions as $existingTransaction)
 			{
 				if ($existingTransaction['log_type'] === $paymentStatus)
