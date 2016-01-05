@@ -35,8 +35,13 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
         static $resources = array();
 
         if (!isset($resources[$threadId])) {
-            $resource = $this->_bdPaygate_getResourceModel()->getResourceByDiscussionId($threadId, array(
-                'join' => XenResource_Model_Resource::FETCH_CATEGORY));
+            $resource = null;
+
+            $resourceModel = $this->_bdPaygate_getResourceModel();
+            if ($resourceModel !== null) {
+                $resource = $resourceModel->getResourceByDiscussionId($threadId, array(
+                    'join' => XenResource_Model_Resource::FETCH_CATEGORY));
+            }
 
             $resources[$threadId] = $resource;
         }
@@ -49,7 +54,18 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
      */
     protected function _bdPaygate_getResourceModel()
     {
-        return $this->getModelFromCache('XenResource_Model_Resource');
+        static $resourceModel = false;
+
+        if ($resourceModel === false) {
+            $resourceModel = null;
+
+            $addOns = XenForo_Application::get('addOns');
+            if (!empty($addOns['XenResource'])) {
+                $resourceModel = $this->getModelFromCache('XenResource_Model_Resource');
+            }
+        }
+
+        return $resourceModel;
     }
 
 }
