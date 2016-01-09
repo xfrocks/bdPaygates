@@ -132,7 +132,7 @@
 </xen:option>]]></replace>
     </modification>
     <modification template="user_upgrade_edit" modification_key="bdpaygate_user_upgrade_edit" description="Replace currency list with ours." execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<xen:select name="cost_currency"[^>]+>)(.|\r|\n)+?</xen:select>#]]></find>
+      <find><![CDATA[#(<xen:select name="cost_currency"[^>]+>).+?</xen:select>#s]]></find>
       <replace><![CDATA[$1
 	<xen:options source="$bdPaygate_currencies" />
 </xen:select>]]></replace>
@@ -480,11 +480,11 @@ When the payment is confirmed, you will be able to download the resource. It wil
   </templates>
   <public_template_modifications>
     <modification template="account_upgrades" modification_key="bdpaygate_account_upgrades_forms" description="Replace PayPal form with our forms." execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#<form action="{\$payPalUrl}" method="post" class="upgradeForm">(.|\r|\n)+</form>#]]></find>
+      <find><![CDATA[#<form[^>]+action="{\$payPalUrl}"[^>]+>.+?</form>#s]]></find>
       <replace><![CDATA[<xen:include template="bdpaygate_account_upgrades_form" />]]></replace>
     </modification>
     <modification template="account_upgrades" modification_key="bdpaygate_account_upgrades_purchased" description="Replace control for purchased upgrades with ours." execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<div class="upgradeForm">(.|\r|\n)+)<xen:if is="{\$upgrade.length_unit} AND {\$upgrade.recurring}">(.|\r|\n)+?</xen:if>#]]></find>
+      <find><![CDATA[#(<div class="upgradeForm">.+)<xen:if is="{\$upgrade.length_unit} AND {\$upgrade.recurring}">.+?</xen:if>#s]]></find>
       <replace><![CDATA[$1
 
 <xen:include template="bdpaygate_account_upgrades_purchased_link" />]]></replace>
@@ -502,7 +502,7 @@ $3]]></replace>
 $0]]></replace>
     </modification>
     <modification template="resource_view_header" modification_key="bdpaygate_resource_purchase_button" description="Replace download button with purchase button for resource." execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#<li>(<label class="downloadButton {xen:if(.|\r|\n)+?</label>)</li>#]]></find>
+      <find><![CDATA[#<li>(<label class="downloadButton {xen:if.+?</label>)</li>#s]]></find>
       <replace><![CDATA[<li>
 	<xen:if is="{$resource.canDownload}">
 		$1
