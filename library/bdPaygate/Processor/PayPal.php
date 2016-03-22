@@ -60,9 +60,9 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 
         try {
             if ($filtered['test_ipn'] && $this->_sandboxMode()) {
-                $validator = XenForo_Helper_Http::getClient('https://www.sandbox.paypal.com/cgi-bin/webscr');
+                $validator = XenForo_Helper_Http::getClient('https://ipnpb.sandbox.paypal.com/cgi-bin/webscr');
             } else {
-                $validator = XenForo_Helper_Http::getClient('http://www.paypal.com/cgi-bin/webscr');
+                $validator = XenForo_Helper_Http::getClient('https://ipnpb.paypal.com/cgi-bin/webscr');
             }
             $validator->setParameterPost('cmd', '_notify-validate');
             $validator->setParameterPost($_POST);
