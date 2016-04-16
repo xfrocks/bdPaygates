@@ -84,12 +84,11 @@ try
 	}
 
 	$logDetails[bdPaygate_Processor_Abstract::TRANSACTION_DETAILS_CALLBACK_IP] = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false);
+	$logMessage = $processor->getLastError();
 
 	if (!$validateResult)
 	{
 		$paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR;
-		$logMessage = $processor->getLastError();
-
 		$response->setHttpResponseCode(500);
 	}
 	else
