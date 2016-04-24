@@ -3,8 +3,12 @@
 class bdPaygate_XenResource_Model_Category extends XFCP_bdPaygate_XenResource_Model_Category
 {
 
-    public function canAddResource(array $category = null, &$errorPhraseKey = '', array $viewingUser = null, array $categoryPermissions = null)
-    {
+    public function canAddResource(
+        array $category = null,
+        &$errorPhraseKey = '',
+        array $viewingUser = null,
+        array $categoryPermissions = null
+    ) {
         $canAddResource = parent::canAddResource($category, $errorPhraseKey, $viewingUser, $categoryPermissions);
 
         if ($category AND !$canAddResource) {

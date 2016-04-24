@@ -8,7 +8,11 @@ class bdPaygate_DataWriter_Purchase extends XenForo_DataWriter
             'xf_bdpaygate_purchase' => array(
                 'purchase_id' => array('type' => XenForo_DataWriter::TYPE_UINT, 'autoIncrement' => true),
                 'user_id' => array('type' => XenForo_DataWriter::TYPE_UINT, 'required' => true),
-                'content_type' => array('type' => XenForo_DataWriter::TYPE_STRING, 'required' => true, 'maxLength' => 25),
+                'content_type' => array(
+                    'type' => XenForo_DataWriter::TYPE_STRING,
+                    'required' => true,
+                    'maxLength' => 25
+                ),
                 'content_id' => array('type' => XenForo_DataWriter::TYPE_UINT, 'required' => true),
                 'purchase_date' => array('type' => XenForo_DataWriter::TYPE_UINT, 'required' => true),
                 'purchased_amount' => array('type' => XenForo_DataWriter::TYPE_STRING, 'maxLength' => 10),

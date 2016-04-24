@@ -167,7 +167,9 @@ class bdPaygate_Model_Log extends XenForo_Model
     {
         foreach ($data as &$entry) {
             $entry['logDetails'] = @unserialize($entry['log_details']);
-            if (empty($entry['logDetails'])) $entry['logDetails'] = array();
+            if (empty($entry['logDetails'])) {
+                $entry['logDetails'] = array();
+            }
         }
     }
 

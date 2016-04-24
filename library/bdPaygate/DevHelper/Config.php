@@ -11,9 +11,19 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base
             'fields' => array(
                 'log_id' => array('name' => 'log_id', 'type' => 'uint', 'autoIncrement' => true),
                 'processor' => array('name' => 'processor', 'type' => 'string', 'length' => 20, 'required' => true),
-                'transaction_id' => array('name' => 'transaction_id', 'type' => 'string', 'length' => 50, 'required' => true),
+                'transaction_id' => array(
+                    'name' => 'transaction_id',
+                    'type' => 'string',
+                    'length' => 50,
+                    'required' => true
+                ),
                 'log_type' => array('name' => 'log_type', 'type' => 'string', 'length' => 20, 'required' => true),
-                'log_message' => array('name' => 'log_message', 'type' => 'string', 'length' => 255, 'required' => true),
+                'log_message' => array(
+                    'name' => 'log_message',
+                    'type' => 'string',
+                    'length' => 255,
+                    'required' => true
+                ),
                 'log_details' => array('name' => 'log_details', 'type' => 'serialized'),
                 'log_date' => array('name' => 'log_date', 'type' => 'uint', 'required' => true),
             ),
@@ -22,7 +32,11 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base
             'title_field' => 'processor',
             'primaryKey' => array('log_id'),
             'indeces' => array(
-                'transaction_id' => array('name' => 'transaction_id', 'fields' => array('transaction_id'), 'type' => 'NORMAL'),
+                'transaction_id' => array(
+                    'name' => 'transaction_id',
+                    'fields' => array('transaction_id'),
+                    'type' => 'NORMAL'
+                ),
             ),
             'files' => array(
                 'data_writer' => false,
@@ -39,11 +53,26 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base
             'fields' => array(
                 'purchase_id' => array('name' => 'purchase_id', 'type' => 'uint', 'autoIncrement' => true),
                 'user_id' => array('name' => 'user_id', 'type' => 'uint', 'required' => true),
-                'content_type' => array('name' => 'content_type', 'type' => 'string', 'length' => 25, 'required' => true),
+                'content_type' => array(
+                    'name' => 'content_type',
+                    'type' => 'string',
+                    'length' => 25,
+                    'required' => true
+                ),
                 'content_id' => array('name' => 'content_id', 'type' => 'uint', 'required' => true),
                 'purchase_date' => array('name' => 'purchase_date', 'type' => 'uint', 'required' => true),
-                'purchased_amount' => array('name' => 'purchased_amount', 'type' => 'string', 'length' => 10, 'required' => true),
-                'purchased_currency' => array('name' => 'purchased_currency', 'type' => 'string', 'length' => 3, 'required' => true),
+                'purchased_amount' => array(
+                    'name' => 'purchased_amount',
+                    'type' => 'string',
+                    'length' => 10,
+                    'required' => true
+                ),
+                'purchased_currency' => array(
+                    'name' => 'purchased_currency',
+                    'type' => 'string',
+                    'length' => 3,
+                    'required' => true
+                ),
             ),
             'phrases' => array(),
             'id_field' => 'purchase_id',
@@ -58,8 +87,14 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base
                 'user_id' => array('name' => 'user_id', 'fields' => array('user_id'), 'type' => 'NORMAL'),
             ),
             'files' => array(
-                'data_writer' => array('className' => 'bdPaygate_DataWriter_Purchase', 'hash' => '5a647e591a893776f62e5d920a291cb9'),
-                'model' => array('className' => 'bdPaygate_Model_Purchase', 'hash' => '8fc24f3e66bd6fad338d9d9cfe4c5670'),
+                'data_writer' => array(
+                    'className' => 'bdPaygate_DataWriter_Purchase',
+                    'hash' => '5a647e591a893776f62e5d920a291cb9'
+                ),
+                'model' => array(
+                    'className' => 'bdPaygate_Model_Purchase',
+                    'hash' => '8fc24f3e66bd6fad338d9d9cfe4c5670'
+                ),
                 'route_prefix_admin' => false,
                 'controller_admin' => false,
             ),
@@ -67,7 +102,12 @@ class bdPaygate_DevHelper_Config extends DevHelper_Config_Base
     );
     protected $_dataPatches = array(
         'xf_resource_category' => array(
-            'bdpaygate_allow_commercial_local' => array('name' => 'bdpaygate_allow_commercial_local', 'type' => 'uint', 'required' => true, 'default' => 0),
+            'bdpaygate_allow_commercial_local' => array(
+                'name' => 'bdpaygate_allow_commercial_local',
+                'type' => 'uint',
+                'required' => true,
+                'default' => 0
+            ),
         ),
     );
     protected $_exportPath = '/Users/sondh/XenForo/bdPaygate';

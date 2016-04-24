@@ -2,8 +2,13 @@
 
 class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
 {
-    public function canReplyToThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
-    {
+    public function canReplyToThread(
+        array $thread,
+        array $forum,
+        &$errorPhraseKey = '',
+        array $nodePermissions = null,
+        array $viewingUser = null
+    ) {
         $canReplyToThread = parent::canReplyToThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
 
         if ($canReplyToThread
@@ -21,7 +26,9 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
 
                 if (XenForo_Permission::hasContentPermission($nodePermissions, 'bdPaygate_allThreads')) {
                     return true;
-                } elseif (!$this->_bdPaygate_getResourceModel()->canDownloadResource($resource, $resource, $errorPhraseKey, $viewingUser)) {
+                } elseif (!$this->_bdPaygate_getResourceModel()->canDownloadResource($resource, $resource,
+                    $errorPhraseKey, $viewingUser)
+                ) {
                     return false;
                 }
             }
@@ -40,7 +47,8 @@ class bdPaygate_XenForo_Model_Thread extends XFCP_bdPaygate_XenForo_Model_Thread
             $resourceModel = $this->_bdPaygate_getResourceModel();
             if ($resourceModel !== null) {
                 $resource = $resourceModel->getResourceByDiscussionId($threadId, array(
-                    'join' => XenResource_Model_Resource::FETCH_CATEGORY));
+                    'join' => XenResource_Model_Resource::FETCH_CATEGORY
+                ));
             }
 
             $resources[$threadId] = $resource;

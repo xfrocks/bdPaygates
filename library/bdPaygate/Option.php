@@ -29,7 +29,8 @@ class bdPaygate_Option
 
         $preparedOption['formatParams'] = $choices;
 
-        return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_checkbox', $view, $fieldPrefix, $preparedOption, $canEdit);
+        return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_checkbox', $view,
+            $fieldPrefix, $preparedOption, $canEdit);
     }
 
     public static function verifyEnabledCurrencies(array &$enabledCurrencies, XenForo_DataWriter $dw, $fieldName)

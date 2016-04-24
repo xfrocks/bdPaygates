@@ -265,8 +265,11 @@ class bdPaygate_Model_Purchase extends XenForo_Model
         // customized code goes here
     }
 
-    protected function _preparePurchaseConditionsCustomized(array &$sqlConditions, array $conditions, array $fetchOptions)
-    {
+    protected function _preparePurchaseConditionsCustomized(
+        array &$sqlConditions,
+        array $conditions,
+        array $fetchOptions
+    ) {
         // customized code goes here
     }
 

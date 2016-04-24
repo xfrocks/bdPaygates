@@ -66,7 +66,8 @@ class bdPaygate_XenResource_DataWriter_Resource extends XFCP_bdPaygate_XenResour
                 if ($commercialParts < 2) {
                     // normal local is not allowed, only commercial local
                     // that means price and currency are required
-                    $this->error(new XenForo_Phrase('please_complete_all_commercial_resource_related_fields'), 'currency');
+                    $this->error(new XenForo_Phrase('please_complete_all_commercial_resource_related_fields'),
+                        'currency');
                 }
             }
         }

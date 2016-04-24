@@ -87,11 +87,13 @@ abstract class bdPaygate_Processor_Abstract
      *
      * @return bool
      */
-    public abstract function validateCallback(Zend_Controller_Request_Http $request,
-                                              &$transactionId,
-                                              &$paymentStatus,
-                                              &$transactionDetails,
-                                              &$itemId);
+    public abstract function validateCallback(
+        Zend_Controller_Request_Http $request,
+        &$transactionId,
+        &$paymentStatus,
+        &$transactionDetails,
+        &$itemId
+    );
 
     /**
      * Validates callback from payment gateway.
@@ -109,14 +111,15 @@ abstract class bdPaygate_Processor_Abstract
      *
      * @return bool
      */
-    public function validateCallback2(Zend_Controller_Request_Http $request,
-                                      &$transactionId,
-                                      &$paymentStatus,
-                                      &$transactionDetails,
-                                      &$itemId,
-                                      &$amount,
-                                      &$currency)
-    {
+    public function validateCallback2(
+        Zend_Controller_Request_Http $request,
+        &$transactionId,
+        &$paymentStatus,
+        &$transactionDetails,
+        &$itemId,
+        &$amount,
+        &$currency
+    ) {
         throw new bdPaygate_Exception_NotImplemented();
     }
 
@@ -147,13 +150,15 @@ abstract class bdPaygate_Processor_Abstract
      *
      * @return string
      */
-    public abstract function generateFormData($amount,
-                                              $currency,
-                                              $itemName,
-                                              $itemId,
-                                              $recurringInterval = false,
-                                              $recurringUnit = false,
-                                              array $extraData = array());
+    public abstract function generateFormData(
+        $amount,
+        $currency,
+        $itemName,
+        $itemId,
+        $recurringInterval = false,
+        $recurringUnit = false,
+        array $extraData = array()
+    );
 
     /**
      * Returns the latest error occurred. If no error is recorded, this method
@@ -479,15 +484,16 @@ abstract class bdPaygate_Processor_Abstract
         return $obj;
     }
 
-    public static function prepareForms(array $processors,
-                                        $amount,
-                                        $currency,
-                                        $itemName,
-                                        $itemId,
-                                        $recurringInterval = false,
-                                        $recurringUnit = false,
-                                        array $extraData = array())
-    {
+    public static function prepareForms(
+        array $processors,
+        $amount,
+        $currency,
+        $itemName,
+        $itemId,
+        $recurringInterval = false,
+        $recurringUnit = false,
+        array $extraData = array()
+    ) {
         $forms = array();
 
         foreach ($processors as $processorId => $processor) {

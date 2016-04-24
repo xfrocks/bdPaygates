@@ -1,10 +1,10 @@
 <?php
 
-// updated by DevHelper_Helper_ShippableHelper at 2015-12-03T09:31:14+00:00
+// updated by DevHelper_Helper_ShippableHelper at 2016-04-02T17:13:14+00:00
 
 /**
  * Class bdPaygate_ShippableHelper_Updater
- * @version 3
+ * @version 4
  * @see DevHelper_Helper_ShippableHelper_Updater
  */
 class bdPaygate_ShippableHelper_Updater
@@ -133,8 +133,8 @@ class bdPaygate_ShippableHelper_Updater
     public static function onPreRoute(
         /** @noinspection PhpUnusedParameterInspection */
         XenForo_FrontController $fc,
-        array $config)
-    {
+        array $config
+    ) {
         if (empty($GLOBALS[self::KEY]['version'][$config['apiUrl']])) {
             return;
         }
@@ -196,8 +196,8 @@ class bdPaygate_ShippableHelper_Updater
         XenForo_FrontController $fc,
         XenForo_ControllerResponse_Abstract &$controllerResponse,
         XenForo_ViewRenderer_Abstract &$viewRenderer,
-        array &$containerParams)
-    {
+        array &$containerParams
+    ) {
         if (!$controllerResponse instanceof XenForo_ControllerResponse_View) {
             return;
         }
@@ -375,8 +375,10 @@ class bdPaygate_ShippableHelper_Updater
         if (!empty($_GET[self::PARAM_AUTHORIZE])
             && $_GET[self::PARAM_AUTHORIZE] === self::$_config['apiUrl']
         ) {
-            $downloadLink = XenForo_Link::buildAdminLink('full:add-ons/upgrade', $controllerResponse->params['addOn'], array(
-                self::PARAM_DOWNLOAD => self::$_config['apiUrl']));
+            $downloadLink = XenForo_Link::buildAdminLink('full:add-ons/upgrade', $controllerResponse->params['addOn'],
+                array(
+                    self::PARAM_DOWNLOAD => self::$_config['apiUrl']
+                ));
             $downloadLinkJson = json_encode($downloadLink);
             $accessTokenParamJson = json_encode(self::PARAM_ACCESS_TOKEN);
 
@@ -649,7 +651,8 @@ EOF;
                         }
                     } else {
                         if (!XenForo_Helper_File::createDirectory($parentOfFileSystemPath)) {
-                            throw new XenForo_Exception('Directory cannot be created: ' . $parentOfFileSystemPath, true);
+                            throw new XenForo_Exception('Directory cannot be created: ' . $parentOfFileSystemPath,
+                                true);
                         }
                     }
                 }
@@ -785,10 +788,16 @@ EOF;
         }
 
         $client = XenForo_Helper_Http::getClient($url);
-        $response = $client->request('GET');
 
-        $responseStatus = $response->getStatus();
-        $responseBody = $response->getBody();
+        try {
+            $response = $client->request('GET');
+
+            $responseStatus = $response->getStatus();
+            $responseBody = $response->getBody();
+        } catch (Exception $e) {
+            $responseStatus = 503;
+            $responseBody = $e->getMessage();
+        }
 
         $json = null;
         if ($responseStatus === 200) {

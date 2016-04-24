@@ -41,8 +41,8 @@ class bdPaygate_Model_Processor extends XenForo_Model
     public function formatAmount(
         $amount,
         /** @noinspection PhpUnusedParameterInspection */
-        $currency)
-    {
+        $currency
+    ) {
         return XenForo_Locale::numberFormat($amount, 2);
     }
 
@@ -211,13 +211,14 @@ class bdPaygate_Model_Processor extends XenForo_Model
         return $message;
     }
 
-    protected function _processUserUpgrade($isAccepted,
-                                           $user,
-                                           $data,
-                                           bdPaygate_Processor_Abstract $processor,
-                                           $amount,
-                                           $currency)
-    {
+    protected function _processUserUpgrade(
+        $isAccepted,
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $amount,
+        $currency
+    ) {
         /** @var XenForo_Model_UserUpgrade $upgradeModel */
         $upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
 
@@ -318,11 +319,12 @@ class bdPaygate_Model_Processor extends XenForo_Model
         }
     }
 
-    protected function _updateSubscriptionForUserUpgrade($user,
-                                                         $data,
-                                                         bdPaygate_Processor_Abstract $processor,
-                                                         $subscriptionId)
-    {
+    protected function _updateSubscriptionForUserUpgrade(
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $subscriptionId
+    ) {
         /** @var XenForo_Model_UserUpgrade $upgradeModel */
         $upgradeModel = $this->getModelFromCache('XenForo_Model_UserUpgrade');
 
@@ -339,10 +341,11 @@ class bdPaygate_Model_Processor extends XenForo_Model
         return $this->_updateSubscriptionForUserUpgradeRecord($upgradeRecord, $processor, $subscriptionId);
     }
 
-    protected function _updateSubscriptionForUserUpgradeRecord($upgradeRecord,
-                                                               bdPaygate_Processor_Abstract $processor,
-                                                               $subscriptionId)
-    {
+    protected function _updateSubscriptionForUserUpgradeRecord(
+        $upgradeRecord,
+        bdPaygate_Processor_Abstract $processor,
+        $subscriptionId
+    ) {
         $extra = unserialize($upgradeRecord['extra']);
         $extra['bdPaygate_processorClass'] = get_class($processor);
         $extra['bdPaygate_subscriptionId'] = $subscriptionId;
@@ -360,13 +363,14 @@ class bdPaygate_Model_Processor extends XenForo_Model
             $subscriptionId, $upgradeRecord['user_upgrade_record_id']);
     }
 
-    protected function _processResourcePurchase($isAccepted,
-                                                $user,
-                                                $data,
-                                                bdPaygate_Processor_Abstract $processor,
-                                                $amount,
-                                                $currency)
-    {
+    protected function _processResourcePurchase(
+        $isAccepted,
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $amount,
+        $currency
+    ) {
         /* @var $resourceModel XenResource_Model_Resource */
         $resourceModel = $this->getModelFromCache('XenResource_Model_Resource');
         /* @var $purchaseModel bdPaygate_Model_Purchase */
@@ -399,13 +403,14 @@ class bdPaygate_Model_Processor extends XenForo_Model
         }
     }
 
-    protected function _processBdShop($isAccepted,
-                                      $user,
-                                      $data,
-                                      bdPaygate_Processor_Abstract $processor,
-                                      $amount,
-                                      $currency)
-    {
+    protected function _processBdShop(
+        $isAccepted,
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $amount,
+        $currency
+    ) {
         if ($isAccepted) {
             if (count($data) < 2) {
                 return '[ERROR] Invalid payment data';
@@ -474,36 +479,39 @@ class bdPaygate_Model_Processor extends XenForo_Model
         }
     }
 
-    protected function _processIntegratedAction($action,
-                                                $user,
-                                                $data,
-                                                bdPaygate_Processor_Abstract $processor,
-                                                $amount,
-                                                $currency)
-    {
+    protected function _processIntegratedAction(
+        $action,
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $amount,
+        $currency
+    ) {
         XenForo_Error::logException(new XenForo_Exception('Unhandled payment action (process): ' . $action));
 
         return false;
     }
 
-    protected function _revertIntegratedAction($action,
-                                               $user,
-                                               $data,
-                                               bdPaygate_Processor_Abstract $processor,
-                                               $amount,
-                                               $currency)
-    {
+    protected function _revertIntegratedAction(
+        $action,
+        $user,
+        $data,
+        bdPaygate_Processor_Abstract $processor,
+        $amount,
+        $currency
+    ) {
         XenForo_Error::logException(new XenForo_Exception('Unhandled payment action (revert): ' . $action));
 
         return false;
     }
 
-    protected function _verifyPaymentAmount(bdPaygate_Processor_Abstract $processor,
-                                            $actualAmount,
-                                            $actualCurrency,
-                                            $expectAmount,
-                                            $expectCurrency)
-    {
+    protected function _verifyPaymentAmount(
+        bdPaygate_Processor_Abstract $processor,
+        $actualAmount,
+        $actualCurrency,
+        $expectAmount,
+        $expectCurrency
+    ) {
         if (utf8_strtolower($actualCurrency) !== utf8_strtolower($expectCurrency)) {
             return false;
         }

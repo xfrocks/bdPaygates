@@ -52,7 +52,10 @@ class bdPaygate_bdShop_StockPricing extends bdShop_StockPricing_Abstract
             }
         }
 
-        return implode('', bdPaygate_Processor_Abstract::prepareForms($processors, $amount, $currency, $comment, $itemId, $recurringInterval, $recurringUnit, array(bdPaygate_Processor_Abstract::EXTRA_RETURN_URL => XenForo_Link::buildPublicLink('full:shop/thanks'))));
+        return implode('',
+            bdPaygate_Processor_Abstract::prepareForms($processors, $amount, $currency, $comment, $itemId,
+                $recurringInterval, $recurringUnit,
+                array(bdPaygate_Processor_Abstract::EXTRA_RETURN_URL => XenForo_Link::buildPublicLink('full:shop/thanks'))));
     }
 
     /**

@@ -12,7 +12,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
         list($resource, $category) = $this->_getResourceViewInfo();
 
         if (!bdPaygate_Helper_Resource::isPaid($resource)
-            && !$resourceModel->canEditResource($resource, $category)) {
+            && !$resourceModel->canEditResource($resource, $category)
+        ) {
             return $this->responseNoPermission();
         }
 
@@ -64,7 +65,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
         /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
         $resourceModel = $this->_getResourceModel();
         if (!bdPaygate_Helper_Resource::isPaid($resource)
-            && !$resourceModel->canEditResource($resource, $category)) {
+            && !$resourceModel->canEditResource($resource, $category)
+        ) {
             return $this->responseNoPermission();
         }
 
@@ -86,7 +88,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
             }
 
             foreach ($users as $user) {
-                $purchased = $purchaseModel->getPurchaseByContentAndUser('resource', $resource['resource_id'], $user['user_id']);
+                $purchased = $purchaseModel->getPurchaseByContentAndUser('resource', $resource['resource_id'],
+                    $user['user_id']);
 
                 if (empty($purchased)) {
                     $purchaseModel->createRecord('resource', $resource['resource_id'], $user['user_id']);
@@ -120,7 +123,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
         /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
         $resourceModel = $this->_getResourceModel();
         if (!bdPaygate_Helper_Resource::isPaid($resource)
-            && !$resourceModel->canEditResource($resource, $category)) {
+            && !$resourceModel->canEditResource($resource, $category)
+        ) {
             return $this->responseNoPermission();
         }
 
@@ -163,7 +167,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
         /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
         $resourceModel = $this->_getResourceModel();
         if (!bdPaygate_Helper_Resource::isPaid($resource)
-            && !$resourceModel->canEditResource($resource, $category)) {
+            && !$resourceModel->canEditResource($resource, $category)
+        ) {
             return $this->responseNoPermission();
         }
 
@@ -239,13 +244,15 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
             'processors' => $processors,
         );
 
-        return $this->responseView('bdPaygate_ViewPublic_Resource_Purchase', 'bdpaygate_resource_purchase', $viewParams);
+        return $this->responseView('bdPaygate_ViewPublic_Resource_Purchase', 'bdpaygate_resource_purchase',
+            $viewParams);
     }
 
     public function actionPurchaseComplete()
     {
         return $this->responseMessage(new XenForo_Phrase('bdpaygate_purchase_resource_complete', array(
-            'purchased_link' => XenForo_Link::buildPublicLink('resources/purchased'))));
+            'purchased_link' => XenForo_Link::buildPublicLink('resources/purchased')
+        )));
     }
 
     public function actionPurchased()
@@ -295,7 +302,8 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
         ));
 
         if (!empty($input['file_hash'])) {
-            $dw->getVersionDw()->setExtraData(XenResource_DataWriter_Version::DATA_ATTACHMENT_HASH, $input['file_hash']);
+            $dw->getVersionDw()->setExtraData(XenResource_DataWriter_Version::DATA_ATTACHMENT_HASH,
+                $input['file_hash']);
         }
 
         if (!empty($input['bdpaygate_price']) OR !empty($input['bdpaygate_currency'])) {

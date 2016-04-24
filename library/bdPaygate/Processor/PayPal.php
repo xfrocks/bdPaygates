@@ -25,16 +25,29 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
         return true;
     }
 
-    public function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId)
-    {
+    public function validateCallback(
+        Zend_Controller_Request_Http $request,
+        &$transactionId,
+        &$paymentStatus,
+        &$transactionDetails,
+        &$itemId
+    ) {
         $amount = false;
         $currency = false;
 
-        return $this->validateCallback2($request, $transactionId, $paymentStatus, $transactionDetails, $itemId, $amount, $currency);
+        return $this->validateCallback2($request, $transactionId, $paymentStatus, $transactionDetails, $itemId, $amount,
+            $currency);
     }
 
-    public function validateCallback2(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId, &$amount, &$currency)
-    {
+    public function validateCallback2(
+        Zend_Controller_Request_Http $request,
+        &$transactionId,
+        &$paymentStatus,
+        &$transactionDetails,
+        &$itemId,
+        &$amount,
+        &$currency
+    ) {
         $input = new XenForo_Input($request);
         $filtered = $input->filter(array(
             'test_ipn' => XenForo_Input::UINT,
@@ -131,8 +144,15 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
         return true;
     }
 
-    public function generateFormData($amount, $currency, $itemName, $itemId, $recurringInterval = false, $recurringUnit = false, array $extraData = array())
-    {
+    public function generateFormData(
+        $amount,
+        $currency,
+        $itemName,
+        $itemId,
+        $recurringInterval = false,
+        $recurringUnit = false,
+        array $extraData = array()
+    ) {
         $this->_assertAmount($amount);
         $this->_assertCurrency($currency);
         $this->_assertItem($itemName, $itemId);

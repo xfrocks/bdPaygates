@@ -30,12 +30,13 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
         return $resource;
     }
 
-    public function canDownloadResource(array $resource,
-                                        array $category,
-                                        &$errorPhraseKey = '',
-                                        array $viewingUser = null,
-                                        array $categoryPermissions = null)
-    {
+    public function canDownloadResource(
+        array $resource,
+        array $category,
+        &$errorPhraseKey = '',
+        array $viewingUser = null,
+        array $categoryPermissions = null
+    ) {
         $canDownload = parent::canDownloadResource($resource, $category,
             $errorPhraseKey, $viewingUser, $categoryPermissions);
 
@@ -73,11 +74,12 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
         return false;
     }
 
-    public function bdPaygate_canPurchaseResource(array $resource,
-                                                  array $category,
-                                                  &$errorPhraseKey = '',
-                                                  array $viewingUser = null)
-    {
+    public function bdPaygate_canPurchaseResource(
+        array $resource,
+        array $category,
+        &$errorPhraseKey = '',
+        array $viewingUser = null
+    ) {
         $this->standardizeViewingUserReference($viewingUser);
 
         if (empty($viewingUser['user_id'])) {
