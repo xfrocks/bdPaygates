@@ -4,41 +4,71 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
 {
     public function actionBuyers()
     {
+        /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
+        $resourceModel = $this->_getResourceModel();
+        /** @var bdPaygate_Model_Purchase $purchaseModel */
+        $purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
+
         list($resource, $category) = $this->_getResourceViewInfo();
 
-        if (empty($resource['is_fileless']) AND !empty($resource['cost']) AND $resource['user_id'] == XenForo_Visitor::getUserId()) {
-            // good
-        } else {
+        if (!bdPaygate_Helper_Resource::isPaid($resource)
+            && !$resourceModel->canEditResource($resource, $category)) {
             return $this->responseNoPermission();
         }
 
         $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/buyers', $resource));
 
-        /** @var bdPaygate_Model_Purchase $purchaseModel */
-        $purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
-        $buyers = $purchaseModel->getUsersWhoPurchased('resource', $resource['resource_id']);
+        $conditions = array(
+            'content_type' => 'resource',
+            'content_id' => $resource['resource_id'],
+        );
+        $purchaseId = $this->_input->filterSingle('purchase_id', XenForo_Input::UINT);
+        if ($purchaseId > 0) {
+            $conditions['purchase_id'] = $purchaseId;
+        }
+
+        $fetchOptions = array(
+            'join' => bdPaygate_Model_Purchase::FETCH_USER,
+            'order' => 'purchase_date',
+            'direction' => 'desc',
+        );
+        $fetchOptions['page'] = $this->_input->filterSingle('page', XenForo_Input::UINT);
+        $fetchOptions['limit'] = 50;
+
+        $buyers = $purchaseModel->getPurchases($conditions, $fetchOptions);
+        $total = $purchaseModel->countPurchases($conditions, $fetchOptions);
 
         $viewParams = array(
             'resource' => $this->_getResourceModel()->prepareResource($resource),
             'category' => $category,
 
             'buyers' => $buyers,
+            'total' => $total,
+            'page' => $fetchOptions['page'],
+            'limit' => $fetchOptions['limit'],
         );
 
-        return $this->_getResourceViewWrapper('buyers', $resource, $category, $this->responseView('bdPaygate_ViewPublic_Resource_Buyers', 'bdpaygate_resource_buyers', $viewParams));
+        return $this->_getResourceViewWrapper('buyers', $resource, $category,
+            $this->responseView(
+                'bdPaygate_ViewPublic_Resource_Buyers',
+                'bdpaygate_resource_buyers',
+                $viewParams
+            )
+        );
     }
 
-    public function actionAddBuyer()
+    public function actionBuyersAdd()
     {
         list($resource, $category) = $this->_getResourceViewInfo();
 
-        if (empty($resource['is_fileless']) AND !empty($resource['cost']) AND $resource['user_id'] == XenForo_Visitor::getUserId()) {
-            // good
-        } else {
+        /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
+        $resourceModel = $this->_getResourceModel();
+        if (!bdPaygate_Helper_Resource::isPaid($resource)
+            && !$resourceModel->canEditResource($resource, $category)) {
             return $this->responseNoPermission();
         }
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/add-buyer', $resource));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/buyers/add', $resource));
 
         if ($this->isConfirmedPost()) {
             $usernames = $this->_input->filterSingle('usernames', XenForo_Input::STRING);
@@ -73,24 +103,28 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
                 'category' => $category,
             );
 
-            return $this->_getResourceViewWrapper('buyers', $resource, $category, $this->responseView('bdPaygate_ViewPublic_Resource_AddBuyer', 'bdpaygate_resource_add_buyer', $viewParams));
+            return $this->_getResourceViewWrapper('buyers', $resource, $category,
+                $this->responseView(
+                    'bdPaygate_ViewPublic_Resource_AddBuyer',
+                    'bdpaygate_resource_add_buyer',
+                    $viewParams
+                )
+            );
         }
     }
 
-    public function actionDeleteBuyer()
+    public function actionBuyersDelete()
     {
         list($resource, $category) = $this->_getResourceViewInfo();
 
-        if (empty($resource['is_fileless'])
-            && !empty($resource['cost'])
-            && $resource['user_id'] == XenForo_Visitor::getUserId()
-        ) {
-            // good
-        } else {
+        /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
+        $resourceModel = $this->_getResourceModel();
+        if (!bdPaygate_Helper_Resource::isPaid($resource)
+            && !$resourceModel->canEditResource($resource, $category)) {
             return $this->responseNoPermission();
         }
 
-        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/delete-buyer', $resource));
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/buyers/delete', $resource));
 
         $userId = $this->_input->filterSingle('user_id', XenForo_Input::UINT);
         /** @var XenForo_Model_User $userModel */
@@ -119,6 +153,60 @@ class bdPaygate_XenResource_ControllerPublic_Resource extends XFCP_bdPaygate_Xen
             return $this->_getResourceViewWrapper('buyers', $resource, $category,
                 $this->responseView('bdPaygate_ViewPublic_Resource_DeleteBuyer',
                     'bdpaygate_resource_delete_buyer', $viewParams));
+        }
+    }
+
+    public function actionBuyersFind()
+    {
+        list($resource, $category) = $this->_getResourceViewInfo();
+
+        /** @var bdPaygate_XenResource_Model_Resource $resourceModel */
+        $resourceModel = $this->_getResourceModel();
+        if (!bdPaygate_Helper_Resource::isPaid($resource)
+            && !$resourceModel->canEditResource($resource, $category)) {
+            return $this->responseNoPermission();
+        }
+
+        $this->canonicalizeRequestUrl(XenForo_Link::buildPublicLink('resources/buyers/find', $resource));
+
+        if ($this->isConfirmedPost()) {
+            $username = $this->_input->filterSingle('username', XenForo_Input::STRING);
+
+            /** @var bdPaygate_Model_Purchase $purchaseModel */
+            $purchaseModel = $this->getModelFromCache('bdPaygate_Model_Purchase');
+            /** @var XenForo_Model_User $userModel */
+            $userModel = $this->getModelFromCache('XenForo_Model_User');
+
+            $user = $userModel->getUserByName($username);
+            if (empty($user)) {
+                return $this->responseError(new XenForo_Phrase('requested_user_not_found'), 404);
+            }
+
+            $purchase = $purchaseModel->getPurchaseByContentAndUser(
+                'resource', $resource['resource_id'], $user['user_id']);
+            if (empty($purchase)) {
+                return $this->responseMessage(new XenForo_Phrase('bdpaygate_buyer_not_found'));
+            }
+
+            return $this->responseRedirect(
+                XenForo_ControllerResponse_Redirect::SUCCESS,
+                XenForo_Link::buildPublicLink('resources/buyers', $resource,
+                    array('purchase_id' => $purchase['purchase_id'])),
+                new XenForo_Phrase('bdpaygate_buyer_found')
+            );
+        } else {
+            $viewParams = array(
+                'resource' => $this->_getResourceModel()->prepareResource($resource),
+                'category' => $category,
+            );
+
+            return $this->_getResourceViewWrapper('buyers', $resource, $category,
+                $this->responseView(
+                    'bdPaygate_ViewPublic_Resource_FindBuyer',
+                    'bdpaygate_resource_find_buyer',
+                    $viewParams
+                )
+            );
         }
     }
 

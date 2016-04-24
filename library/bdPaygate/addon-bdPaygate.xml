@@ -220,6 +220,8 @@
     <phrase title="admin_navigation_bdPaygate_logs" version_id="2" version_string="0.9-dev"><![CDATA[[bd] Paygates Log]]></phrase>
     <phrase title="bdpaygate_add_buyer" version_id="19" version_string="1.3.1b"><![CDATA[Add Buyer]]></phrase>
     <phrase title="bdpaygate_buyers" version_id="19" version_string="1.3.1b"><![CDATA[Buyers]]></phrase>
+    <phrase title="bdpaygate_buyer_found" version_id="1050102" version_string="1.5.1"><![CDATA[The requested user has purchased this item.]]></phrase>
+    <phrase title="bdpaygate_buyer_not_found" version_id="1050102" version_string="1.5.1"><![CDATA[The requested user hasn't purchase this item.]]></phrase>
     <phrase title="bdpaygate_cannot_purchase_self_resource" version_id="9" version_string="1.0.3"><![CDATA[You cannot purchase your own resource.]]></phrase>
     <phrase title="bdpaygate_cannot_repurchase_resource" version_id="9" version_string="1.0.3"><![CDATA[You have purchased this resource already.]]></phrase>
     <phrase title="bdpaygate_commercial_uploaded_file" version_id="28" version_string="1.4.4"><![CDATA[Commercial uploaded file]]></phrase>
@@ -334,9 +336,10 @@ When the payment is confirmed, you will be able to download the resource. It wil
 
 <xen:edithint template="resource_add" />
 <xen:edithint template="bdpaygate_resource_edit" />]]></template>
-    <template title="bdpaygate_resource_add_buyer" version_id="19" version_string="1.3.1b"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_add_buyer}</xen:title>
+    <template title="bdpaygate_resource_add_buyer" version_id="1050102" version_string="1.5.1"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_add_buyer}</xen:title>
 
-<form action="{xen:link resources/add-buyer, $resource}" method="post" class="xenForm AutoValidator" data-redirect="yes">
+<form action="{xen:link resources/buyers/add, $resource}" method="post"
+	  class="xenForm formOverlay AutoValidator" data-redirect="yes">
 
 	<dl class="ctrlUnit">
 		<dt><label for="ctrl_usernames">{xen:phrase user_name}:</label></dt>
@@ -353,13 +356,26 @@ When the payment is confirmed, you will be able to download the resource. It wil
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 	<input type="hidden" name="_xfConfirm" value="1" />
 </form>]]></template>
-    <template title="bdpaygate_resource_buyers" version_id="26" version_string="1.4.2"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_buyers}</xen:title>
+    <template title="bdpaygate_resource_buyers" version_id="1050102" version_string="1.5.1"><![CDATA[<xen:set var="$pageNav"><xen:pagenav perpage="{$limit}" total="{$total}" page="{$page}"
+									 link="resources/buyers" linkdata="{$resource}" /></xen:set>
+
+<xen:title>{$resource.title} - {xen:phrase bdpaygate_buyers}</xen:title>
 
 <xen:require css="bdpaygate.css" />
 
 <div>
 	<div style="padding: 5px; text-align: right">
-		<a href="{xen:link resources/add-buyer, $resource}" class="callToAction"><span>{xen:phrase bdpaygate_add_buyer}</span></a>
+		<xen:if is="{$pageNav}">
+			<a href="{xen:link resources/buyers/find, $resource}"
+			   class="callToAction OverlayTrigger">
+				<span>{xen:phrase bdpaygate_find_buyer}</span>
+			</a>
+		</xen:if>
+
+		<a href="{xen:link resources/buyers/add, $resource}"
+		   class="callToAction OverlayTrigger">
+			<span>{xen:phrase bdpaygate_add_buyer}</span>
+		</a>
 	</div>
 
 	<ol class="section memberList">
@@ -370,22 +386,26 @@ When the payment is confirmed, you will be able to download the resource. It wil
 					
 					<xen:if is="{$user.purchased_amount} AND {$user.purchased_currency}">
 						<div class="muted">
-							{xen:phrase bdpaygate_purchased_for}: {$user.purchased_amount} {$user.purchased_currency}
+							{xen:phrase bdpaygate_purchased_for}:
+							{$user.purchased_amount} {$user.purchased_currency}
 						</div>
 					</xen:if>
 
-					<a href="{xen:link resources/delete-buyer, $resource, 'user_id={$user.user_id}'}"
-						class="OverlayTrigger">
+					<a href="{xen:link resources/buyers/delete, $resource,
+							 'user_id={$user.user_id}'}" class="OverlayTrigger">
 						{xen:phrase delete}
 					</a>
 				</xen:set>
 			</xen:include>
 		</xen:foreach>
 	</ol>
+	
+	{xen:raw $pageNav}
 </div>]]></template>
-    <template title="bdpaygate_resource_delete_buyer" version_id="26" version_string="1.4.2"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_delete_buyer}</xen:title>
+    <template title="bdpaygate_resource_delete_buyer" version_id="1050102" version_string="1.5.1"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_delete_buyer}</xen:title>
 
-<form action="{xen:link resources/delete-buyer, $resource}" method="post" class="xenForm formOverlay AutoValidator" data-redirect="yes">
+<form action="{xen:link resources/buyers/delete, $resource}" method="post"
+	  class="xenForm formOverlay AutoValidator" data-redirect="yes">
 
 	<p>{xen:phrase bdpaygate_delete_buyer_confirm, 'user={xen:helper username, $user}'}</p>
 	
@@ -419,6 +439,26 @@ When the payment is confirmed, you will be able to download the resource. It wil
 		</dl>
 	</fieldset>
 </xen:if>]]></template>
+    <template title="bdpaygate_resource_find_buyer" version_id="1050102" version_string="1.5.1"><![CDATA[<xen:title>{$resource.title} - {xen:phrase bdpaygate_find_buyer}</xen:title>
+
+<form action="{xen:link resources/buyers/find, $resource}" method="post"
+	  class="xenForm formOverlay AutoValidator" data-redirect="yes">
+
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_usernames">{xen:phrase user_name}:</label></dt>
+		<dd>
+			<input type="text" name="username" class="textCtrl AutoComplete AcSingle" />
+		</dd>
+	</dl>
+	
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" name="save" value="{xen:phrase find}" accesskey="s" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</form>]]></template>
     <template title="bdpaygate_resource_purchase" version_id="26" version_string="1.4.2"><![CDATA[<xen:title>{xen:phrase bdpaygate_purchase_resource}: {$resource.title}</xen:title>
 
 <div class="xenForm formOverlay">
@@ -472,7 +512,7 @@ When the payment is confirmed, you will be able to download the resource. It wil
 		<div class="primaryContent">{xen:phrase you_not_currently_watching_any_resources}</div>
 	</xen:if>
 </div>]]></template>
-    <template title="bdpaygate_resource_view_tabs" version_id="19" version_string="1.3.1b"><![CDATA[<xen:if is="!{$resource.is_fileless} AND {$resource.cost} AND {$resource.user_id} == {$visitor.user_id}">
+    <template title="bdpaygate_resource_view_tabs" version_id="1050102" version_string="1.5.1"><![CDATA[<xen:if is="{xen:helper bdPaygate_resourceIsPaid, $resource} && {$resource.canEdit}">
 	<li class="resourceTabBuyers {xen:if "{$selectedTab} == 'buyers'", active}">
 		<a href="{xen:link resources/buyers, $resource}">{xen:phrase bdpaygate_buyers}</a>
 	</li>

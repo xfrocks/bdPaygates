@@ -32,6 +32,9 @@ class bdPaygate_Listener
     public static function init_dependencies(XenForo_Dependencies_Abstract $dependencies, array $data)
     {
         bdPaygate_ShippableHelper_Updater::onInitDependencies($dependencies, bdPaygate_Option::UPDATER_URL);
+
+        XenForo_Template_Helper_Core::$helperCallbacks[strtolower('bdPaygate_resourceIsPaid')]
+            = array('bdPaygate_Helper_Resource', 'isPaid');
     }
 
     public static function bdshop_stock_pricing_get_systems(array &$systems)

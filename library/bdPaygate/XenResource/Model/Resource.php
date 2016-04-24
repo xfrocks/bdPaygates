@@ -64,16 +64,10 @@ class bdPaygate_XenResource_Model_Resource extends XFCP_bdPaygate_XenResource_Mo
             return false;
         }
 
-        if (empty($resource['is_fileless'])
-            && empty($resource['download_url'])
+        if (bdPaygate_Helper_Resource::isPaid($resource)
+            && $resource['user_id'] != $viewingUser['user_id']
         ) {
-            if ($resource['user_id'] != $viewingUser['user_id']) {
-                if (!empty($resource['price'])
-                    && !empty($resource['currency'])
-                ) {
-                    return true;
-                }
-            }
+            return true;
         }
 
         return false;

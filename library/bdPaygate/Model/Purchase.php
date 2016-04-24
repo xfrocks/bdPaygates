@@ -287,7 +287,7 @@ class bdPaygate_Model_Purchase extends XenForo_Model
 
     protected function _preparePurchaseOrderOptionsCustomized(array &$choice, array &$fetchOptions)
     {
-        // customized code goes here
+        $choice['purchase_date'] = 'purchase.purchase_date';
     }
 
 }
