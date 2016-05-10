@@ -2,6 +2,8 @@
 
 class bdPaygate_Listener
 {
+    const UPDATER_URL = 'https://xfrocks.com/api/index.php?updater';
+
     public static function load_class($class, array &$extend)
     {
         static $classes = array(
@@ -31,7 +33,7 @@ class bdPaygate_Listener
 
     public static function init_dependencies(XenForo_Dependencies_Abstract $dependencies, array $data)
     {
-        bdPaygate_ShippableHelper_Updater::onInitDependencies($dependencies, bdPaygate_Option::UPDATER_URL);
+        bdPaygate_ShippableHelper_Updater::onInitDependencies($dependencies, self::UPDATER_URL);
 
         XenForo_Template_Helper_Core::$helperCallbacks[strtolower('bdPaygate_resourceIsPaid')]
             = array('bdPaygate_Helper_Resource', 'isPaid');

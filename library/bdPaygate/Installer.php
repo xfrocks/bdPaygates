@@ -132,7 +132,7 @@ class bdPaygate_Installer
 
     private static function uninstallCustomized()
     {
-        bdPaygate_ShippableHelper_Updater::onUninstall(bdPaygate_Option::UPDATER_URL);
+        bdPaygate_ShippableHelper_Updater::onUninstall(bdPaygate_Listener::UPDATER_URL);
     }
 
 }
