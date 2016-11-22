@@ -23,6 +23,11 @@ class bdPaygate_bdShop_StockPricing extends bdShop_StockPricing_Abstract
         return $this->_getProcessorModel()->formatAmount($amount, $currency);
     }
 
+    public function truncateAmount($amount, $currency)
+    {
+        return $this->_getProcessorModel()->truncateAmount($amount, $currency);
+    }
+
     public function generateHtml($amount, $currency, $comment, array $data, XenForo_View $view)
     {
         return $this->generateHtmlRecurrence(0, $amount, $currency, $comment, $data, $view);

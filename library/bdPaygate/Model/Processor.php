@@ -46,6 +46,11 @@ class bdPaygate_Model_Processor extends XenForo_Model
         return XenForo_Locale::numberFormat($amount, 2);
     }
 
+    public function truncateAmount($amount, $currency)
+    {
+        return round($amount, 2);
+    }
+
     public function getProcessorNames()
     {
         return array('paypal' => 'bdPaygate_Processor_PayPal');
