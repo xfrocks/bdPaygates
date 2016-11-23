@@ -430,7 +430,13 @@ abstract class bdPaygate_Processor_Abstract
             throw new XenForo_Exception("Could not determine processor id for class {$thisClassName}.");
         }
 
-        return XenForo_Application::getOptions()->get('boardUrl') . '/bdpaygate/callback.php?p=' . $thisProcessorId;
+        $callbackUrl = XenForo_Application::getOptions()->get('boardUrl') . '/bdpaygate/callback.php';
+        $callbackUrlConfig = XenForo_Application::getConfig()->get(bdPaygate_Option::CONFIG_CALLBACK_URL);
+        if (is_string($callbackUrlConfig) && strlen($callbackUrlConfig)) {
+            $callbackUrl = $callbackUrlConfig;
+        }
+
+        return sprintf('%s?p=%s', $callbackUrl, urlencode($thisProcessorId));
     }
 
     /**

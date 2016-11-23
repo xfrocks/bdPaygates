@@ -2,6 +2,8 @@
 
 class bdPaygate_Option
 {
+    const CONFIG_CALLBACK_URL = 'bdPaygate_callbackUrl';
+
     public static function get($key, $subKey = null)
     {
         $options = XenForo_Application::getOptions();
