@@ -134,7 +134,10 @@ class bdPaygate_Model_Processor extends XenForo_Model
             }
         }
 
-        if ($logType === bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED) {
+        if (in_array($logType, array(
+            bdPaygate_Processor_Abstract::PAYMENT_STATUS_ERROR,
+            bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED,
+        ), true)) {
             $emailOnFailure = XenForo_Application::getOptions()->get('bdPaygate0_emailOnFailure');
 
             if (!empty($emailOnFailure)) {
