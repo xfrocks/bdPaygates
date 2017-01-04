@@ -106,16 +106,33 @@ class bdPaygate_Model_Processor extends XenForo_Model
 
     public function log($processorId, $transactionId, $logType, $logMessage, $logDetails)
     {
-        $this->_getDb()->insert('xf_bdpaygate_log', array(
+        $data = array(
             'processor' => $processorId,
             'transaction_id' => $transactionId,
             'log_type' => $logType,
             'log_message' => substr($logMessage, 0, 255),
             'log_details' => serialize($logDetails),
             'log_date' => XenForo_Application::$time
-        ));
+        );
 
-        $logId = $this->_getDb()->lastInsertId();
+        $logId = 0;
+        $logError = null;
+        try {
+            $this->_getDb()->insert('xf_bdpaygate_log', $data);
+            $logId = $this->_getDb()->lastInsertId();
+        } catch (Throwable $e) {
+            $logError = $e;
+        }
+
+        if (empty($logId)) {
+            // for some reason, logging has failed
+            // fallback to file for now
+            XenForo_Helper_File::log(__METHOD__, var_export($data, true));
+
+            if ($logError !== null) {
+                XenForo_Helper_File::log(__METHOD__, strval($logError));
+            }
+        }
 
         if ($logType === bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED) {
             $emailOnFailure = XenForo_Application::getOptions()->get('bdPaygate0_emailOnFailure');

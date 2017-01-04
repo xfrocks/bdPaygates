@@ -48,6 +48,7 @@ if (!isset($_GET['p']))
 }
 
 $processorId = $_GET['p'];
+/** @var bdPaygate_Model_Processor $processorModel */
 $processorModel = XenForo_Model::create('bdPaygate_Model_Processor');
 $names = $processorModel->getProcessorNames();
 
