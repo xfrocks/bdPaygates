@@ -32,6 +32,7 @@ class bdPaygate_Model_Purchase extends XenForo_Model
 
     public function createRecord($contentType, $contentId, $userId, $amount = 0, $currency = '')
     {
+        /** @var bdPaygate_DataWriter_Purchase $dw */
         $dw = XenForo_DataWriter::create('bdPaygate_DataWriter_Purchase');
         $dw->set('content_type', $contentType);
         $dw->set('content_id', $contentId);
