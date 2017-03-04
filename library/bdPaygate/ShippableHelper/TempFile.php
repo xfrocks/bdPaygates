@@ -1,10 +1,10 @@
 <?php
 
-// updated by DevHelper_Helper_ShippableHelper at 2016-11-22T10:19:44+00:00
+// updated by DevHelper_Helper_ShippableHelper at 2017-03-04T04:28:04+00:00
 
 /**
  * Class bdPaygate_ShippableHelper_TempFile
- * @version 7
+ * @version 9
  * @see DevHelper_Helper_ShippableHelper_TempFile
  */
 class bdPaygate_ShippableHelper_TempFile
@@ -13,6 +13,12 @@ class bdPaygate_ShippableHelper_TempFile
     protected static $_cached = array();
     protected static $_registeredShutdownFunction = false;
 
+    /**
+     * Downloads and put content into the specified temp file
+     *
+     * @param string $url
+     * @param string $tempFile
+     */
     public static function cache($url, $tempFile)
     {
         self::$_cached[$url] = $tempFile;
@@ -22,12 +28,25 @@ class bdPaygate_ShippableHelper_TempFile
         }
     }
 
-    public static function create($contents)
+    /**
+     * Creates a new temp file with the given contents and prefix.
+     *
+     * @param string|null $contents if null, no contents will be written to file
+     * @param string|null $prefix if null, the default prefix will be used
+     * @return string
+     */
+    public static function create($contents = null, $prefix = null)
     {
-        $tempFile = tempnam(XenForo_Helper_File::getTempDir(), self::_getPrefix());
+        if ($prefix === null) {
+            $prefix = self::_getPrefix();
+        }
+
+        $tempFile = tempnam(XenForo_Helper_File::getTempDir(), $prefix);
         self::cache(sprintf('%s::%s', __METHOD__, md5($tempFile)), $tempFile);
 
-        file_put_contents($tempFile, $contents);
+        if ($contents !== null) {
+            file_put_contents($tempFile, $contents);
+        }
 
         return $tempFile;
     }
@@ -95,16 +114,15 @@ class bdPaygate_ShippableHelper_TempFile
         $downloaded = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == 200;
 
         curl_close($ch);
-
         fclose($fh);
 
-        if (XenForo_Application::debugMode()) {
+        $fileSize = filesize($tempFile);
+        if ($downloaded && $fileSize === 0) {
+            clearstatcache();
             $fileSize = filesize($tempFile);
-            if ($downloaded && $fileSize === 0) {
-                clearstatcache();
-                $fileSize = filesize($tempFile);
-            }
+        }
 
+        if (XenForo_Application::debugMode()) {
             XenForo_Helper_File::log(__CLASS__, call_user_func_array('sprintf', array(
                 'download %s -> %s, %s, %d bytes%s',
                 $url,
