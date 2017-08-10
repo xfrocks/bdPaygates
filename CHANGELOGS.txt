@@ -1,0 +1,48 @@
+1.5.2 (24-04-2016)
+	Added pagination for buyers page
+	Updated to use PayPal TLS IPN
+	Improved support for PHP 7
+
+1.5.1 (17-10-2015)
+	Added daily version checking from xfrocks.com
+	Bug fixes
+
+1.5.0 (released 17-09-2014)
+	Added delete buyer feature
+	Added option for commercial local upload (XenForo Resource Manager)
+	Improved support for subscriptions
+	Improved support for PayPal
+	Bug fixes
+
+1.4.0b (released 20-11-2013)
+	Changed to enable all currencies by default
+
+1.4 (released 18-11-2013)
+	Added better support for custom currencies
+
+1.3.2b (released 07-11-2013)
+	Added availability check before returning list of supported currencies
+	Added added parent::renderHtml check
+	Added check to revoke purchase permission for guest
+	Added nicer purchase button for resource (XenForo 1.2+ only)
+	Added buyers tab for resource
+	Added add-buyer button
+	Added support for XFRM 1.1
+	Added support for custom currency in resource edit form
+	Updated to use template modification for XenForo 1.2 instead of replacing account_upgrades template completely
+	Updated logging to consider rejected as failure only
+	Fixed bug rejected transaction id without prefix
+
+1.3 (released 01-07-2013)
+	Added support for [bd] Shop
+	Added routine to delete user purchase records upon user deletion
+	Improved duplicate transaction handling
+
+1.1.2 (released 17-05-2013)
+	Added support for XenForo Resource Manager (paid resource)
+
+1.0.3 (released 30-03-2013)
+	Minor improvement
+
+1.0.2 (released 28-03-2013)
+	First release
