@@ -193,7 +193,7 @@ class bdPaygate_Processor_PayPal extends bdPaygate_Processor_Abstract
 	<input type="hidden" name="src" value="1" />
 	<input type="hidden" name="sra" value="1" />
 
-	<input type="submit" value="{$callToAction}" class="button" />
+	<button value="{$callToAction}" class="button" />
 
 	<input type="hidden" name="business" value="{$account}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
@@ -216,7 +216,7 @@ EOF;
 	<input type="hidden" name="cmd" value="_xclick" />
 	<input type="hidden" name="amount" value="{$amount}" />
 
-	<input type="submit" value="{$callToAction}" class="button" />
+	<button value="{$callToAction}" class="button" />
 
 	<input type="hidden" name="business" value="{$account}" />
 	<input type="hidden" name="currency_code" value="{$currencyPP}" />
