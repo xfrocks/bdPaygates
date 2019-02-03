@@ -75,8 +75,9 @@ class bdPaygate_ShippableHelper_Updater
             = 'bdPaygate_ShippableHelper_UpdaterCore';
 
         if (!isset($GLOBALS[self::KEY]['onPreRoute'][$apiUrl])) {
-            $GLOBALS[self::KEY]['onPreRoute'][$apiUrl] = create_function('$fc',
-                __CLASS__ . '::onPreRoute($fc, ' . var_export($config, true) . ');');
+            $GLOBALS[self::KEY]['onPreRoute'][$apiUrl] = function ($fc) use ($config) {
+                self::onPreRoute($fc, $config);
+            };
             XenForo_CodeEvent::addListener('front_controller_pre_route',
                 $GLOBALS[self::KEY]['onPreRoute'][$apiUrl]);
         }
